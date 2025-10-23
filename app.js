@@ -3,42 +3,50 @@ import express from 'express';
 import path from 'path';
 import morgan from 'morgan';
 import session from 'express-session';
-import MySQLStoreInit from 'connect-mysql2';
+import expressMySQLSession from 'express-mysql-session';
 import pool from './config/db.js';
+import adminRoutes from './routes/adminRoutes.js';
 
-const MySQLStore = MySQLStoreInit(session);
+const MySQLStore = expressMySQLSession(session);
 
 const app = express();
 const __dirname = path.resolve();
 
+console.log('🟢 Starting Event Management App...');
+
 // ===== Basic app settings =====
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views')); // we'll create /views later
+app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(morgan('dev'));
-app.use(express.static(path.join(__dirname, 'public'))); // /public later
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ===== Sessions (stored in MySQL) =====
-const sessionStore = new MySQLStore({ pool });
+const sessionStore = new MySQLStore({
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'event_mgmt'
+});
+
 app.use(
   session({
-    secret: 'change-this-secret', // replace with a long random string
+    secret: 'change-this-secret',
     resave: false,
     saveUninitialized: false,
     store: sessionStore,
-    cookie: {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 8 // 8 hours
-    }
+    cookie: { httpOnly: true, maxAge: 1000 * 60 * 60 * 8 }
   })
 );
 
-// ===== Simple home route (temporary) =====
+// ===== Routes =====
 app.get('/', (req, res) => {
-  res.send('<h1>Event Management — Super Admin Setup</h1><p>Server running.</p>');
+  res.send('<h1>Event Management System</h1><p>Server running.</p>');
 });
+
+app.use('/admin', adminRoutes);
 
 // ===== 404 handler =====
 app.use((req, res) => {
@@ -48,5 +56,5 @@ app.use((req, res) => {
 // ===== Start server =====
 const PORT = 3000;
 app.listen(PORT, () => {
-  console.log('Server running on http://localhost:' + PORT);
+  console.log('✅ Server running at: http://localhost:' + PORT);
 });
