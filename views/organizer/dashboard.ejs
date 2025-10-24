@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Organizer Dashboard</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .top { display: flex; justify-content: space-between; align-items: center; }
+    a.btn { background: #2563eb; color: #fff; padding: 10px 14px; border-radius: 5px; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <h1>Welcome, <%= organizer.name %>!</h1>
+    <a href="/organizer/logout" class="btn">Logout</a>
+  </div>
+
+  <p>Role: <%= organizer.role %></p>
+
+  <h3>Your Tools:</h3>
+  <ul>
+    <li><a href="/organizer/events">View My Events</a></li>
+    <li><a href="/organizer/events/new">Add New Event</a></li>
+  </ul>
+</body>
+</html>

@@ -6,9 +6,9 @@ import session from 'express-session';
 import expressMySQLSession from 'express-mysql-session';
 import pool from './config/db.js';
 import adminRoutes from './routes/adminRoutes.js';
+import organizerRoutes from './routes/organizerRoutes.js';
 
 const MySQLStore = expressMySQLSession(session);
-
 const app = express();
 const __dirname = path.resolve();
 
@@ -28,7 +28,7 @@ const sessionStore = new MySQLStore({
   host: 'localhost',
   user: 'root',
   password: '',
-  database: 'event_mgmt'
+  database: 'event_mgmt',
 });
 
 app.use(
@@ -37,20 +37,29 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: sessionStore,
-    cookie: { httpOnly: true, maxAge: 1000 * 60 * 60 * 8 }
+    cookie: {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 8, // 8 hours
+    },
   })
 );
 
 // ===== Routes =====
+
+// Default home
 app.get('/', (req, res) => {
   res.send('<h1>Event Management System</h1><p>Server running.</p>');
 });
 
+// Admin routes
 app.use('/admin', adminRoutes);
+
+// Organizer routes
+app.use('/organizer', organizerRoutes);
 
 // ===== 404 handler =====
 app.use((req, res) => {
-  res.status(404).send('Not found');
+  res.status(404).send('Not Found');
 });
 
 // ===== Start server =====

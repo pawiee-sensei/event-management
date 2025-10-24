@@ -2,10 +2,22 @@
 <html>
 <head>
   <title>Admin Dashboard</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .top { display:flex; justify-content: space-between; align-items:center; }
+    .btn { display:inline-block; padding:10px 14px; border:none; border-radius:6px; cursor:pointer; text-decoration:none; }
+    .btn-primary { background:#2563eb; color:#fff; }
+  </style>
 </head>
 <body>
-  <h1>Welcome, <%= admin.name %>!</h1>
+  <div class="top">
+    <h1>Welcome, <%= admin.name %>!</h1>
+    <a href="/admin/logout">Logout</a>
+  </div>
+
   <p>Role: <%= admin.role %></p>
-  <a href="/admin/logout">Logout</a>
+
+  <!-- New button that goes to Pending Events -->
+  <a class="btn btn-primary" href="/admin/events/pending">View Pending Event Requests</a>
 </body>
 </html>
