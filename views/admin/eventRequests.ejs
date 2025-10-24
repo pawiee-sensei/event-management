@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pending Event Requests</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 10px; border-bottom: 1px solid #ccc; text-align: left; }
+    th { background: #eee; }
+    a.button, button { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; }
+    .approve { background: #4CAF50; color: white; }
+    .reject { background: #f44336; color: white; }
+  </style>
+</head>
+<body>
+  <h1>Pending Event Requests</h1>
+  <p>Welcome, <%= admin.name %> | <a href="/admin/logout">Logout</a></p>
+
+  <% if (events.length === 0) { %>
+    <p>No pending events right now.</p>
+  <% } else { %>
+  <table>
+    <tr>
+      <th>Event Title</th>
+      <th>Organizer</th>
+      <th>Date</th>
+      <th>Location</th>
+      <th>Actions</th>
+    </tr>
+    <% events.forEach(event => { %>
+      <tr>
+        <td><a href="/admin/events/<%= event.id %>"><%= event.title %></a></td>
+        <td><%= event.organizer_name || 'Unknown' %></td>
+        <td><%= event.date %></td>
+        <td><%= event.location %></td>
+        <td>
+          <form action="/admin/events/<%= event.id %>/approve" method="POST" style="display:inline;">
+            <button class="approve">Approve</button>
+          </form>
+          <form action="/admin/events/<%= event.id %>/reject" method="POST" style="display:inline;">
+            <button class="reject">Reject</button>
+          </form>
+        </td>
+      </tr>
+    <% }); %>
+  </table>
+  <% } %>
+</body>
+</html>

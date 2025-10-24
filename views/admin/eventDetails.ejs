@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Event Details</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .container { max-width: 600px; margin: auto; }
+    img { max-width: 100%; border-radius: 8px; margin: 10px 0; }
+    .btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; }
+    .approve { background: #4CAF50; color: white; }
+    .reject { background: #f44336; color: white; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><%= event.title %></h1>
+    <p><strong>Date:</strong> <%= event.date %> at <%= event.time %></p>
+    <p><strong>Location:</strong> <%= event.location %></p>
+    <p><strong>Organizer:</strong> <%= event.organizer_name %> (<%= event.organizer_email %>)</p>
+    <p><strong>Description:</strong> <%= event.description %></p>
+
+    <% if (event.image) { %>
+      <img src="/uploads/<%= event.image %>" alt="Event Image">
+    <% } %>
+
+    <% if (event.proof) { %>
+      <p><strong>Proof:</strong> <a href="/uploads/<%= event.proof %>" target="_blank">View Proof</a></p>
+    <% } else { %>
+      <p><em>No proof uploaded</em></p>
+    <% } %>
+
+    <form action="/admin/events/<%= event.id %>/approve" method="POST" style="display:inline;">
+      <button class="btn approve">Approve</button>
+    </form>
+    <form action="/admin/events/<%= event.id %>/reject" method="POST" style="display:inline;">
+      <button class="btn reject">Reject</button>
+    </form>
+  </div>
+</body>
+</html>

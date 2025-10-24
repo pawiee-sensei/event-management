@@ -46,6 +46,55 @@ router.get('/dashboard', ensureAuthenticated, isAdmin, (req, res) => {
   res.render('admin/dashboard', { admin: req.session.user });
 });
 
+
+import { getPendingEvents, updateEventStatus, getEventById } from '../models/eventModel.js';
+
+// ===== View Pending Events =====
+router.get('/events/pending', ensureAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const pendingEvents = await getPendingEvents();
+    res.render('admin/eventRequests', { admin: req.session.user, events: pendingEvents });
+  } catch (err) {
+    console.error('Error fetching events:', err);
+    res.send('Server error.');
+  }
+});
+
+// ===== Approve Event =====
+router.post('/events/:id/approve', ensureAuthenticated, isAdmin, async (req, res) => {
+  try {
+    await updateEventStatus(req.params.id, 'approved');
+    res.redirect('/admin/events/pending');
+  } catch (err) {
+    console.error('Approve error:', err);
+    res.send('Server error.');
+  }
+});
+
+// ===== Reject Event =====
+router.post('/events/:id/reject', ensureAuthenticated, isAdmin, async (req, res) => {
+  try {
+    await updateEventStatus(req.params.id, 'rejected');
+    res.redirect('/admin/events/pending');
+  } catch (err) {
+    console.error('Reject error:', err);
+    res.send('Server error.');
+  }
+});
+
+// ===== View Event Details =====
+router.get('/events/:id', ensureAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const event = await getEventById(req.params.id);
+    if (!event) return res.status(404).send('Event not found');
+    res.render('admin/eventDetails', { admin: req.session.user, event });
+  } catch (err) {
+    console.error('View event error:', err);
+    res.send('Server error.');
+  }
+});
+
+
 // ===== Admin Logout =====
 router.get('/logout', (req, res) => {
   req.session.destroy(() => {
