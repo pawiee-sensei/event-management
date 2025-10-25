@@ -1,15 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Pending Event Requests</title>
   <style>
-    body { font-family: Arial; padding: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { padding: 10px; border-bottom: 1px solid #ccc; text-align: left; }
-    th { background: #eee; }
-    a.button, button { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; }
-    .approve { background: #4CAF50; color: white; }
-    .reject { background: #f44336; color: white; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      padding: 30px;
+      background: #f8fafc;
+      color: #1e293b;
+    }
+
+    h1 {
+      color: #1e293b;
+      margin-bottom: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    tr.event-row {
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    tr.event-row:hover {
+      background: #f9fafb;
+    }
+
+    /* Details row */
+    .event-details {
+      display: none;
+      background: #f8fafc;
+      border-top: 1px solid #e5e7eb;
+      animation: slideDown 0.3s ease forwards;
+    }
+
+    .details-frame {
+      display: flex;
+      align-items: flex-start;
+      gap: 25px;
+      padding: 25px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      background: white;
+      margin: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .details-text {
+      flex: 2;
+      line-height: 1.6;
+    }
+
+    .details-text p {
+      margin: 8px 0;
+    }
+
+    .details-image {
+      flex: 1;
+      text-align: center;
+    }
+
+    .details-image img {
+      width: 100%;
+      max-width: 500px;
+      border-radius: 8px;
+      border: 2px solid #e5e7eb;
+      transition: transform 0.3s ease;
+    }
+
+    .details-image img:hover {
+      transform: scale(1.05);
+    }
+
+    button {
+      padding: 7px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+
+    .approve {
+      background: #16a34a;
+      color: white;
+    }
+
+    .reject {
+      background: #dc2626;
+      color: white;
+    }
+
+    form {
+      display: inline-block;
+      margin-right: 5px;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -19,31 +133,80 @@
   <% if (events.length === 0) { %>
     <p>No pending events right now.</p>
   <% } else { %>
-  <table>
-    <tr>
-      <th>Event Title</th>
-      <th>Organizer</th>
-      <th>Date</th>
-      <th>Location</th>
-      <th>Actions</th>
-    </tr>
-    <% events.forEach(event => { %>
-      <tr>
-        <td><a href="/admin/events/<%= event.id %>"><%= event.title %></a></td>
-        <td><%= event.organizer_name || 'Unknown' %></td>
-        <td><%= event.date %></td>
-        <td><%= event.location %></td>
-        <td>
-          <form action="/admin/events/<%= event.id %>/approve" method="POST" style="display:inline;">
-            <button class="approve">Approve</button>
-          </form>
-          <form action="/admin/events/<%= event.id %>/reject" method="POST" style="display:inline;">
-            <button class="reject">Reject</button>
-          </form>
-        </td>
-      </tr>
-    <% }); %>
-  </table>
+    <table id="eventsTable">
+      <thead>
+        <tr>
+          <th>Event Title</th>
+          <th>Organizer</th>
+          <th>Date</th>
+          <th>Location</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% events.forEach(event => { %>
+          <tr class="event-row" data-event-id="<%= event.id %>">
+            <td><%= event.title %></td>
+            <td><%= event.organizer_name || 'Unknown' %></td>
+            <td><%= event.date %></td>
+            <td><%= event.location %></td>
+            <td>
+              <form action="/admin/events/<%= event.id %>/approve" method="POST">
+                <button class="approve">Approve</button>
+              </form>
+              <form action="/admin/events/<%= event.id %>/reject" method="POST">
+                <button class="reject">Reject</button>
+              </form>
+            </td>
+          </tr>
+
+          <tr class="event-details" id="details-<%= event.id %>">
+            <td colspan="5">
+              <div class="details-frame">
+                <div class="details-text">
+                  <p><strong>Description:</strong> <%= event.description %></p>
+                  <p><strong>Organizer:</strong> <%= event.organizer_name %></p>
+                  <p><strong>Email:</strong> <%= event.organizer_email %></p>
+                  <p><strong>Date:</strong> <%= event.date %> at <%= event.time %></p>
+                  <p><strong>Location:</strong> <%= event.location %></p>
+
+                  <% if (event.proof) { %>
+                    <p><strong>Proof Document:</strong>
+                      <a href="/uploads/proofs/<%= event.proof %>" target="_blank">View Proof</a>
+                    </p>
+                  <% } else { %>
+                    <p><em>No proof uploaded</em></p>
+                  <% } %>
+                </div>
+
+                <% if (event.image) { %>
+                  <div class="details-image">
+                    <img src="/uploads/banners/<%= event.image %>" alt="Event Banner">
+                  </div>
+                <% } %>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
   <% } %>
+
+  <script>
+    // Toggle event details visibility
+    document.querySelectorAll('.event-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const id = row.dataset.eventId;
+        const detailRow = document.getElementById(`details-${id}`);
+        const isVisible = detailRow.style.display === 'table-row';
+
+        // collapse all others
+        document.querySelectorAll('.event-details').forEach(d => d.style.display = 'none');
+
+        // toggle this one
+        detailRow.style.display = isVisible ? 'none' : 'table-row';
+      });
+    });
+  </script>
 </body>
 </html>
