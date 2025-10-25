@@ -86,4 +86,53 @@ router.get('/logout', (req, res) => {
   });
 });
 
+
+// ===== Organizer View Their Events =====
+router.get('/events', ensureAuthenticated, async (req, res) => {
+  if (req.session.user.role !== 'organizer') return res.status(403).send('Access denied.');
+  try {
+    const [events] = await pool.query(
+      'SELECT * FROM events WHERE created_by = ? ORDER BY created_at DESC',
+      [req.session.user.id]
+    );
+    res.render('organizer/myEvents', { organizer: req.session.user, events });
+  } catch (err) {
+    console.error('Fetch events error:', err);
+    res.send('Server error.');
+  }
+});
+
+// ===== Organizer Create Event (GET form) =====
+router.get('/events/new', ensureAuthenticated, (req, res) => {
+  if (req.session.user.role !== 'organizer') return res.status(403).send('Access denied.');
+  res.render('organizer/createEvent', { organizer: req.session.user, error: null, success: null });
+});
+
+// ===== Organizer Create Event (POST submit) =====
+router.post('/events/new', ensureAuthenticated, async (req, res) => {
+  if (req.session.user.role !== 'organizer') return res.status(403).send('Access denied.');
+
+  const { title, description, date, time, location } = req.body;
+
+  try {
+    await pool.query(
+      'INSERT INTO events (title, description, date, time, location, created_by, status) VALUES (?, ?, ?, ?, ?, ?, "pending")',
+      [title, description, date, time, location, req.session.user.id]
+    );
+
+    res.render('organizer/createEvent', {
+      organizer: req.session.user,
+      error: null,
+      success: 'Event submitted for approval!'
+    });
+  } catch (err) {
+    console.error('Create event error:', err);
+    res.render('organizer/createEvent', {
+      organizer: req.session.user,
+      error: 'Server error. Please try again.',
+      success: null
+    });
+  }
+});
+
 export default router;

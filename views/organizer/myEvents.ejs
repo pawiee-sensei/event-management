@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Events</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 10px; border-bottom: 1px solid #ccc; text-align: left; }
+    th { background: #eee; }
+    span.pending { color: orange; }
+    span.approved { color: green; }
+    span.rejected { color: red; }
+  </style>
+</head>
+<body>
+  <h1>My Events</h1>
+  <p><a href="/organizer/dashboard">← Back to Dashboard</a></p>
+
+  <% if (events.length === 0) { %>
+    <p>No events yet. <a href="/organizer/events/new">Create one</a></p>
+  <% } else { %>
+    <table>
+      <tr>
+        <th>Title</th>
+        <th>Date</th>
+        <th>Location</th>
+        <th>Status</th>
+      </tr>
+      <% events.forEach(ev => { %>
+        <tr>
+          <td><%= ev.title %></td>
+          <td><%= ev.date %></td>
+          <td><%= ev.location %></td>
+          <td>
+            <% if (ev.status === 'pending') { %><span class="pending">Pending</span><% } %>
+            <% if (ev.status === 'approved') { %><span class="approved">Approved</span><% } %>
+            <% if (ev.status === 'rejected') { %><span class="rejected">Rejected</span><% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </table>
+  <% } %>
+</body>
+</html>
