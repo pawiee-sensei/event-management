@@ -20,14 +20,16 @@
     <p><strong>Description:</strong> <%= event.description %></p>
 
     <% if (event.image) { %>
-      <img src="/uploads/<%= event.image %>" alt="Event Image">
-    <% } %>
+  <p><strong>Banner Image:</strong></p>
+  <img src="/uploads/banners/<%= event.image %>" alt="Event Banner">
+<% } %>
 
-    <% if (event.proof) { %>
-      <p><strong>Proof:</strong> <a href="/uploads/<%= event.proof %>" target="_blank">View Proof</a></p>
-    <% } else { %>
-      <p><em>No proof uploaded</em></p>
-    <% } %>
+<% if (event.proof) { %>
+  <p><strong>Proof Document:</strong>
+    <a href="/uploads/proofs/<%= event.proof %>" target="_blank">View Proof</a>
+  </p>
+<% } %>
+
 
     <form action="/admin/events/<%= event.id %>/approve" method="POST" style="display:inline;">
       <button class="btn approve">Approve</button>

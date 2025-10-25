@@ -3,24 +3,28 @@
 <head>
   <title>My Events</title>
   <style>
-    body { font-family: Arial; padding: 20px; }
+    body { font-family: Arial, sans-serif; padding: 20px; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { padding: 10px; border-bottom: 1px solid #ccc; text-align: left; }
-    th { background: #eee; }
-    span.pending { color: orange; }
-    span.approved { color: green; }
-    span.rejected { color: red; }
+    th { background: #f4f4f4; }
+    img { border-radius: 6px; }
+    span.pending { color: orange; font-weight: bold; }
+    span.approved { color: green; font-weight: bold; }
+    span.rejected { color: red; font-weight: bold; }
+    a { color: #2563eb; text-decoration: none; }
   </style>
 </head>
 <body>
   <h1>My Events</h1>
   <p><a href="/organizer/dashboard">← Back to Dashboard</a></p>
+  <p><a href="/organizer/events/new">➕ Add New Event</a></p>
 
   <% if (events.length === 0) { %>
-    <p>No events yet. <a href="/organizer/events/new">Create one</a></p>
+    <p>No events yet. Start by <a href="/organizer/events/new">creating one</a>.</p>
   <% } else { %>
     <table>
       <tr>
+        <th>Banner</th>
         <th>Title</th>
         <th>Date</th>
         <th>Location</th>
@@ -28,6 +32,13 @@
       </tr>
       <% events.forEach(ev => { %>
         <tr>
+          <td>
+            <% if (ev.image) { %>
+              <img src="/uploads/banners/<%= ev.image %>" width="100" alt="Banner">
+            <% } else { %>
+              N/A
+            <% } %>
+          </td>
           <td><%= ev.title %></td>
           <td><%= ev.date %></td>
           <td><%= ev.location %></td>

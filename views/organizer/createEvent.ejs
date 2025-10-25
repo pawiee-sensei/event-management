@@ -17,13 +17,21 @@
   <% if (error) { %><p class="error"><%= error %></p><% } %>
   <% if (success) { %><p class="success"><%= success %></p><% } %>
 
-  <form action="/organizer/events/new" method="POST">
-    <input type="text" name="title" placeholder="Event Title" required>
-    <textarea name="description" placeholder="Description" required></textarea>
-    <input type="date" name="date" required>
-    <input type="time" name="time" required>
-    <input type="text" name="location" placeholder="Location" required>
-    <button type="submit">Submit Event</button>
-  </form>
+  <form action="/organizer/events/new" method="POST" enctype="multipart/form-data">
+  <input type="text" name="title" placeholder="Event Title" required>
+  <textarea name="description" placeholder="Description" required></textarea>
+  <input type="date" name="date" required>
+  <input type="time" name="time" required>
+  <input type="text" name="location" placeholder="Location" required>
+
+  <label>Banner Image:</label>
+  <input type="file" name="banner" accept=".jpg,.jpeg,.png" required>
+
+  <label>Proof Document:</label>
+  <input type="file" name="proof" accept=".jpg,.jpeg,.png,.pdf" required>
+
+  <button type="submit">Submit Event</button>
+</form>
+
 </body>
 </html>

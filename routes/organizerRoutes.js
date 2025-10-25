@@ -3,6 +3,26 @@ import express from 'express';
 import pool from '../config/db.js';
 import bcrypt from 'bcryptjs';
 import { ensureAuthenticated, redirectIfAuthenticated } from '../middlewares/auth.js';
+import multer from 'multer';
+import path from 'path';
+
+// ===== Multer Storage Config =====
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    if (file.fieldname === 'banner') cb(null, 'uploads/banners');
+    else if (file.fieldname === 'proof') cb(null, 'uploads/proofs');
+  },
+  filename: (req, file, cb) => {
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, unique + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB max
+});
+
 
 const router = express.Router();
 
@@ -108,31 +128,45 @@ router.get('/events/new', ensureAuthenticated, (req, res) => {
   res.render('organizer/createEvent', { organizer: req.session.user, error: null, success: null });
 });
 
-// ===== Organizer Create Event (POST submit) =====
-router.post('/events/new', ensureAuthenticated, async (req, res) => {
-  if (req.session.user.role !== 'organizer') return res.status(403).send('Access denied.');
+// ===== Organizer Create Event (POST submit with files) =====
+router.post(
+  '/events/new',
+  ensureAuthenticated,
+  upload.fields([
+    { name: 'banner', maxCount: 1 },
+    { name: 'proof', maxCount: 1 }
+  ]),
+  async (req, res) => {
+    if (req.session.user.role !== 'organizer') {
+      return res.status(403).send('Access denied.');
+    }
 
-  const { title, description, date, time, location } = req.body;
+    const { title, description, date, time, location } = req.body;
+    const bannerFile = req.files['banner'] ? req.files['banner'][0].filename : null;
+    const proofFile = req.files['proof'] ? req.files['proof'][0].filename : null;
 
-  try {
-    await pool.query(
-      'INSERT INTO events (title, description, date, time, location, created_by, status) VALUES (?, ?, ?, ?, ?, ?, "pending")',
-      [title, description, date, time, location, req.session.user.id]
-    );
+    try {
+      await pool.query(
+        `INSERT INTO events
+          (title, description, date, time, location, created_by, image, proof, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
+        [title, description, date, time, location, req.session.user.id, bannerFile, proofFile]
+      );
 
-    res.render('organizer/createEvent', {
-      organizer: req.session.user,
-      error: null,
-      success: 'Event submitted for approval!'
-    });
-  } catch (err) {
-    console.error('Create event error:', err);
-    res.render('organizer/createEvent', {
-      organizer: req.session.user,
-      error: 'Server error. Please try again.',
-      success: null
-    });
+      res.render('organizer/createEvent', {
+        organizer: req.session.user,
+        error: null,
+        success: 'Event submitted for approval with uploaded files!'
+      });
+    } catch (err) {
+      console.error('Create event error:', err);
+      res.render('organizer/createEvent', {
+        organizer: req.session.user,
+        error: 'Server error. Please try again.',
+        success: null
+      });
+    }
   }
-});
+);
 
 export default router;
