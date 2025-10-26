@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>All Events</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f8fafc;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #2563eb;
+      color: white;
+      padding: 20px 40px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 25px;
+    }
+
+    .event-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .event-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+    }
+
+    .event-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .event-info {
+      padding: 18px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .event-info h3 {
+      margin: 0 0 10px;
+      color: #1e293b;
+    }
+
+    .event-info p {
+      margin: 4px 0;
+      color: #475569;
+    }
+
+    .event-footer {
+      margin-top: 15px;
+      font-size: 0.9em;
+      color: #64748b;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #64748b;
+      background: #f1f5f9;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Upcoming & Approved Events</h1>
+  </header>
+
+  <div class="container">
+    <% if (events.length === 0) { %>
+      <p style="text-align:center; width:100%;">No approved events yet. Check back soon!</p>
+    <% } else { %>
+      <% events.forEach(event => { %>
+        <div class="event-card">
+          <% if (event.image) { %>
+            <img src="/uploads/banners/<%= event.image %>" alt="Event Banner">
+          <% } else { %>
+            <img src="/public/default-banner.jpg" alt="Default Banner">
+          <% } %>
+
+          <div class="event-info">
+            <div>
+              <h3><%= event.title %></h3>
+              <p><strong>Date:</strong> <%= event.date %> at <%= event.time %></p>
+              <p><strong>Location:</strong> <%= event.location %></p>
+              <p><strong>Organizer:</strong> <%= event.organizer_name || "Unknown" %></p>
+            </div>
+
+            <div class="event-footer">
+              <em>Approved Event</em>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+
+  <footer>
+    © <%= new Date().getFullYear() %> Event Management System. All rights reserved.
+  </footer>
+</body>
+</html>

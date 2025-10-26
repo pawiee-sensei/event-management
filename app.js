@@ -7,6 +7,7 @@ import expressMySQLSession from 'express-mysql-session';
 import pool from './config/db.js';
 import adminRoutes from './routes/adminRoutes.js';
 import organizerRoutes from './routes/organizerRoutes.js';
+import publicRoutes from './routes/publicRoutes.js'; // ✅ NEW: Public events page
 
 const MySQLStore = expressMySQLSession(session);
 const app = express();
@@ -14,15 +15,18 @@ const __dirname = path.resolve();
 
 console.log('🟢 Starting Event Management App...');
 
-// ===== Basic app settings =====
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// ===== Serve static assets =====
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // for banner/proof files
+app.use(express.static(path.join(__dirname, 'public'))); // CSS/JS/images
+
+// ===== View engine (EJS) =====
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// ===== Middleware =====
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(morgan('dev'));
-app.use(express.static(path.join(__dirname, 'public')));
 
 // ===== Sessions (stored in MySQL) =====
 const sessionStore = new MySQLStore({
@@ -34,7 +38,7 @@ const sessionStore = new MySQLStore({
 
 app.use(
   session({
-    secret: 'change-this-secret',
+    secret: 'change-this-secret', // replace with a long random string
     resave: false,
     saveUninitialized: false,
     store: sessionStore,
@@ -46,25 +50,21 @@ app.use(
 );
 
 // ===== Routes =====
-
-// Default home
 app.get('/', (req, res) => {
-  res.send('<h1>Event Management System</h1><p>Server running.</p>');
+  res.send('<h1>Event Management System</h1><p>Server running successfully.</p><p><a href="/events">View Public Events</a></p>');
 });
 
-// Admin routes
 app.use('/admin', adminRoutes);
-
-// Organizer routes
 app.use('/organizer', organizerRoutes);
+app.use('/', publicRoutes); // ✅ NEW: public-facing routes
 
 // ===== 404 handler =====
 app.use((req, res) => {
-  res.status(404).send('Not Found');
+  res.status(404).send('404 - Page Not Found');
 });
 
-// ===== Start server =====
+// ===== Start Server =====
 const PORT = 3000;
 app.listen(PORT, () => {
-  console.log('✅ Server running at: http://localhost:' + PORT);
+  console.log(`✅ Server running at: http://localhost:${PORT}`);
 });
