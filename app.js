@@ -16,6 +16,10 @@ const __dirname = path.resolve();
 console.log('🟢 Starting Event Management App...');
 
 // ===== Serve static assets =====
+
+
+// serve uploaded images publicly
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // for banner/proof files
 app.use(express.static(path.join(__dirname, 'public'))); // CSS/JS/images
 
