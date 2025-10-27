@@ -141,16 +141,16 @@ router.post(
       return res.status(403).send('Access denied.');
     }
 
-    const { title, description, date, time, location } = req.body;
+    const { title, description, category, date, time, location } = req.body;
     const bannerFile = req.files['banner'] ? req.files['banner'][0].filename : null;
     const proofFile = req.files['proof'] ? req.files['proof'][0].filename : null;
 
     try {
       await pool.query(
         `INSERT INTO events
-          (title, description, date, time, location, created_by, image, proof, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
-        [title, description, date, time, location, req.session.user.id, bannerFile, proofFile]
+          (title, description, category, date, time, location, created_by, image, proof, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
+        [title, description, category, date, time, location, req.session.user.id, bannerFile, proofFile]
       );
 
       res.render('organizer/createEvent', {
@@ -168,5 +168,7 @@ router.post(
     }
   }
 );
+
+
 
 export default router;

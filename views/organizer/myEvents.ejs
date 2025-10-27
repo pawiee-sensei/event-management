@@ -28,6 +28,7 @@
         <th>Title</th>
         <th>Date</th>
         <th>Location</th>
+        <th>Category</th>
         <th>Status</th>
       </tr>
       <% events.forEach(ev => { %>
@@ -42,6 +43,7 @@
           <td><%= ev.title %></td>
           <td><%= ev.date %></td>
           <td><%= ev.location %></td>
+          <td><%= ev.category || '—' %></td>
           <td>
             <% if (ev.status === 'pending') { %><span class="pending">Pending</span><% } %>
             <% if (ev.status === 'approved') { %><span class="approved">Approved</span><% } %>

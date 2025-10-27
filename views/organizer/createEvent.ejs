@@ -20,9 +20,23 @@
   <form action="/organizer/events/new" method="POST" enctype="multipart/form-data">
   <input type="text" name="title" placeholder="Event Title" required>
   <textarea name="description" placeholder="Description" required></textarea>
+
+ 
+
   <input type="date" name="date" required>
   <input type="time" name="time" required>
   <input type="text" name="location" placeholder="Location" required>
+
+   <label for="category">Category:</label>
+  <select name="category" id="category" required>
+    <option value="">Select Category</option>
+    <option value="Food">Food</option>
+    <option value="Music">Music</option>
+    <option value="Sports">Sports</option>
+    <option value="Technology">Technology</option>
+    <option value="Community">Community</option>
+    <option value="Education">Education</option>
+  </select>
 
   <label>Banner Image:</label>
   <input type="file" name="banner" accept=".jpg,.jpeg,.png" required>
@@ -32,6 +46,7 @@
 
   <button type="submit">Submit Event</button>
 </form>
+
 
 </body>
 </html>
