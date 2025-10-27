@@ -20,15 +20,11 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
-    h1 {
-      margin: 0;
-      font-size: 28px;
-    }
+    h1 { margin: 0; font-size: 28px; }
 
-    /* Search and Filter Section */
+    /* Filter Bar */
     .filter-bar {
-      display: flex;
-      flex-wrap: wrap;
+      display: flex; flex-wrap: wrap;
       justify-content: center;
       gap: 12px;
       background: #fff;
@@ -38,7 +34,6 @@
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
-
     .filter-bar input[type="text"], .filter-bar select {
       padding: 10px 14px;
       border: 1px solid #cbd5e1;
@@ -47,7 +42,6 @@
       width: 250px;
       outline: none;
     }
-
     .filter-bar button {
       padding: 10px 16px;
       background: #2563eb;
@@ -57,10 +51,7 @@
       cursor: pointer;
       transition: background 0.3s ease;
     }
-
-    .filter-bar button:hover {
-      background: #1d4ed8;
-    }
+    .filter-bar button:hover { background: #1d4ed8; }
 
     /* Event Grid */
     .container {
@@ -71,7 +62,6 @@
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 25px;
     }
-
     .event-card {
       background: #fff;
       border-radius: 12px;
@@ -80,55 +70,91 @@
       display: flex;
       flex-direction: column;
       transition: transform 0.25s ease, box-shadow 0.25s ease;
+      cursor: pointer;
     }
-
     .event-card:hover {
       transform: translateY(-6px);
       box-shadow: 0 6px 16px rgba(0,0,0,0.1);
     }
-
     .event-card img {
       width: 100%;
       height: 220px;
       object-fit: cover;
       background: #e2e8f0;
     }
-
-    .event-info {
-      padding: 18px 20px;
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-    }
-
-    .event-info h3 {
-      margin: 0 0 8px;
-      color: #1e293b;
-      font-size: 20px;
-    }
-
-    .event-info p {
-      margin: 5px 0;
-      color: #475569;
-    }
-
-    .event-footer {
-      margin-top: auto;
-      font-size: 0.9em;
-      color: #64748b;
-    }
+    .event-info { padding: 18px 20px; display: flex; flex-direction: column; flex-grow: 1; }
+    .event-info h3 { margin: 0 0 8px; color: #1e293b; font-size: 20px; }
+    .event-info p { margin: 5px 0; color: #475569; }
+    .event-footer { margin-top: auto; font-size: 0.9em; color: #64748b; }
 
     footer {
-      text-align: center;
-      padding: 20px;
-      background: #f1f5f9;
+      text-align: center; padding: 20px;
+      background: #f1f5f9; color: #64748b;
+    }
+
+    /* MODAL STYLES */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 1000;
+    }
+    .modal.active {
+      opacity: 1; pointer-events: auto;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: fadeIn 0.3s ease;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 24px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #f8fafc;
+    }
+    .modal-header h2 { margin: 0; }
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
       color: #64748b;
+    }
+    .modal-body {
+      padding: 20px 25px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .modal-body img {
+      width: 100%;
+      max-width: 500px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .modal-body p {
+      margin: 6px 0;
+      color: #334155;
+      width: 100%;
+      max-width: 600px;
+    }
+    @keyframes fadeIn {
+      from { transform: translateY(-10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
 
     @media (max-width: 600px) {
-      .filter-bar input, .filter-bar select {
-        width: 100%;
-      }
+      .modal-body img { max-width: 100%; }
     }
   </style>
 </head>
@@ -137,6 +163,7 @@
     <h1>Discover Upcoming Events</h1>
   </header>
 
+  <!-- FILTER FORM -->
   <form class="filter-bar" method="GET" action="/events">
     <input type="text" name="search" value="<%= search || '' %>" placeholder="Search by title, location, or organizer">
     <select name="category">
@@ -145,43 +172,100 @@
       <option value="Music" <%= category === 'Music' ? 'selected' : '' %>>Music</option>
       <option value="Sports" <%= category === 'Sports' ? 'selected' : '' %>>Sports</option>
       <option value="Technology" <%= category === 'Technology' ? 'selected' : '' %>>Technology</option>
+      <option value="Community" <%= category === 'Community' ? 'selected' : '' %>>Community</option>
+      <option value="Education" <%= category === 'Education' ? 'selected' : '' %>>Education</option>
     </select>
     <button type="submit">Filter</button>
   </form>
 
+  <!-- EVENT GRID -->
   <div class="container">
     <% if (events.length === 0) { %>
       <p style="text-align:center; width:100%;">No approved events found.</p>
     <% } else { %>
       <% events.forEach(event => { %>
-        <div class="event-card">
+        <div class="event-card"
+             data-title="<%= event.title %>"
+             data-desc="<%= event.description %>"
+             data-date="<%= event.date %>"
+             data-time="<%= event.time %>"
+             data-loc="<%= event.location %>"
+             data-org="<%= event.organizer_name %>"
+             data-cat="<%= event.category %>"
+             data-img="/uploads/banners/<%= event.image %>">
           <% if (event.image) { %>
             <img src="/uploads/banners/<%= event.image %>" alt="Event Banner">
           <% } else { %>
             <img src="https://via.placeholder.com/400x220?text=No+Banner" alt="No Banner">
           <% } %>
-
           <div class="event-info">
             <h3><%= event.title %></h3>
             <p><strong>Date:</strong> <%= event.date %> at <%= event.time %></p>
             <p><strong>Location:</strong> <%= event.location %></p>
-            <p><strong>Organizer:</strong> <%= event.organizer_name || 'Unknown' %></p>
-
-            <% if (event.category) { %>
-              <p><strong>Category:</strong> <%= event.category %></p>
-            <% } %>
-
-            <div class="event-footer">
-              <em>Approved Event</em>
-            </div>
+            <p><strong>Category:</strong> <%= event.category %></p>
+            <div class="event-footer"><em>Approved Event</em></div>
           </div>
         </div>
       <% }) %>
     <% } %>
   </div>
 
+  <!-- MODAL -->
+  <div id="eventModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Event Title</h2>
+        <button class="close-btn" id="closeModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <img id="modalImg" src="" alt="Banner">
+        <p id="modalDesc"></p>
+        <p><strong>Date:</strong> <span id="modalDate"></span> at <span id="modalTime"></span></p>
+        <p><strong>Location:</strong> <span id="modalLoc"></span></p>
+        <p><strong>Category:</strong> <span id="modalCat"></span></p>
+        <p><strong>Organizer:</strong> <span id="modalOrg"></span></p>
+      </div>
+    </div>
+  </div>
+
   <footer>
     © <%= new Date().getFullYear() %> Event Management System
   </footer>
+
+  <script>
+    const cards = document.querySelectorAll('.event-card');
+    const modal = document.getElementById('eventModal');
+    const closeModal = document.getElementById('closeModal');
+
+    const modalTitle = document.getElementById('modalTitle');
+    const modalImg = document.getElementById('modalImg');
+    const modalDesc = document.getElementById('modalDesc');
+    const modalDate = document.getElementById('modalDate');
+    const modalTime = document.getElementById('modalTime');
+    const modalLoc = document.getElementById('modalLoc');
+    const modalCat = document.getElementById('modalCat');
+    const modalOrg = document.getElementById('modalOrg');
+
+    // Open modal when a card is clicked
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        modal.classList.add('active');
+        modalTitle.textContent = card.dataset.title;
+        modalDesc.textContent = card.dataset.desc;
+        modalDate.textContent = card.dataset.date;
+        modalTime.textContent = card.dataset.time;
+        modalLoc.textContent = card.dataset.loc;
+        modalCat.textContent = card.dataset.cat;
+        modalOrg.textContent = card.dataset.org;
+        modalImg.src = card.dataset.img || 'https://via.placeholder.com/400x220?text=No+Banner';
+      });
+    });
+
+    // Close modal
+    closeModal.addEventListener('click', () => modal.classList.remove('active'));
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('active');
+    });
+  </script>
 </body>
 </html>
