@@ -100,16 +100,23 @@ router.post('/events/:id/approve', ensureAuthenticated, isAdmin, async (req, res
   }
 });
 
-// ===== Reject Event =====
+// ===== Reject Event with Reason =====
 router.post('/events/:id/reject', ensureAuthenticated, isAdmin, async (req, res) => {
+  const { reason } = req.body;
+  const { id } = req.params;
+
   try {
-    await updateEventStatus(req.params.id, 'rejected');
+    await pool.query(
+      'UPDATE events SET status = "rejected", rejection_reason = ? WHERE id = ?',
+      [reason || 'No reason provided', id]
+    );
     res.redirect('/admin/events/pending');
   } catch (err) {
-    console.error('Reject error:', err);
-    res.send('Server error.');
+    console.error('Reject event error:', err);
+    res.send('Server error while rejecting event.');
   }
 });
+
 
 // ===== View Event Details =====
 router.get('/events/:id', ensureAuthenticated, isAdmin, async (req, res) => {

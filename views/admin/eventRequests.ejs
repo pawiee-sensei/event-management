@@ -124,6 +124,140 @@
       from { opacity: 0; transform: translateY(-5px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    /* Modal (Improved Design) */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-dialog {
+  background: white;
+  border-radius: 14px;
+  width: 90%;
+  max-width: 520px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  animation: popIn 0.25s ease;
+  overflow: hidden;
+}
+
+.modal-header {
+  background: #2563eb;
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 20px 50px;
+}
+
+/* ✅ FIX: Center everything properly inside the form */
+.modal-body form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px; /* space between textarea and buttons */
+  width: 100%;
+}
+
+/* ✅ Make textarea perfectly centered and proportionate */
+.modal-body textarea {
+  width: 100%;
+  max-width: 460px;
+  padding: 14px 18px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  resize: vertical;
+  font-size: 15px;
+  font-family: inherit;
+  line-height: 1.5;
+  background: #f9fafb;
+  transition: all 0.2s ease;
+}
+
+.modal-body textarea:focus {
+  border-color: #2563eb;
+  outline: none;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+
+/* ✅ Center buttons horizontally */
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Buttons styling */
+button.cancel, button.submit {
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+button.cancel {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+button.submit {
+  background: #2563eb;
+  color: white;
+}
+
+button.cancel:hover {
+  background: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+button.submit:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+@keyframes popIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
   </style>
 </head>
 <body>
@@ -154,9 +288,7 @@
               <form action="/admin/events/<%= event.id %>/approve" method="POST">
                 <button class="approve">Approve</button>
               </form>
-              <form action="/admin/events/<%= event.id %>/reject" method="POST">
-                <button class="reject">Reject</button>
-              </form>
+              <button class="reject" type="button" onclick="openRejectModal(<%= event.id %>)">Reject</button>
             </td>
           </tr>
 
@@ -169,6 +301,7 @@
                   <p><strong>Email:</strong> <%= event.organizer_email %></p>
                   <p><strong>Date:</strong> <%= event.date %> at <%= event.time %></p>
                   <p><strong>Location:</strong> <%= event.location %></p>
+                  <p><strong>Category:</strong> <%= event.category || 'N/A' %></p>
 
                   <% if (event.proof) { %>
                     <p><strong>Proof Document:</strong>
@@ -192,6 +325,35 @@
     </table>
   <% } %>
 
+  <!-- Rejection Reason Modal -->
+  <!-- Rejection Reason Modal -->
+<div id="rejectModal" class="modal">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3>Reject Event</h3>
+      <button class="close-btn" onclick="closeRejectModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="rejectForm" method="POST">
+        <label for="rejectReason"><strong>Reason for Rejection</strong></label>
+        <textarea name="reason" id="rejectReason" rows="4" placeholder="Write a short explanation..." required></textarea>
+        <div class="modal-actions">
+          <button type="button" class="cancel" onclick="closeRejectModal()">Cancel</button>
+          <button type="submit" class="submit">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+    
+        
+          
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Toggle event details visibility
     document.querySelectorAll('.event-row').forEach(row => {
@@ -199,13 +361,28 @@
         const id = row.dataset.eventId;
         const detailRow = document.getElementById(`details-${id}`);
         const isVisible = detailRow.style.display === 'table-row';
-
-        // collapse all others
         document.querySelectorAll('.event-details').forEach(d => d.style.display = 'none');
-
-        // toggle this one
         detailRow.style.display = isVisible ? 'none' : 'table-row';
       });
+    });
+
+    // Reject Modal logic
+    const rejectModal = document.getElementById('rejectModal');
+    const rejectForm = document.getElementById('rejectForm');
+    const rejectReason = document.getElementById('rejectReason');
+
+    function openRejectModal(eventId) {
+      rejectModal.classList.add('active');
+      rejectForm.action = `/admin/events/${eventId}/reject`;
+    }
+
+    function closeRejectModal() {
+      rejectModal.classList.remove('active');
+      rejectReason.value = '';
+    }
+
+    rejectModal.addEventListener('click', (e) => {
+      if (e.target === rejectModal) closeRejectModal();
     });
   </script>
 </body>
