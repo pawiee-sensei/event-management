@@ -3,7 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <title>Admin Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+
+    .chart-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.chart-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  padding: 15px;
+  text-align: center;
+  height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.chart-card h3 {
+  font-size: 16px;
+  color: #374151;
+  margin-bottom: 10px;
+}
+
+.chart-container {
+  position: relative;
+  height: 300px;
+}
+
+    
     body { font-family: 'Segoe UI', sans-serif; background:#f8fafc; margin:0; padding:30px; color:#1e293b; }
     h1 { margin-bottom:5px; }
     .stats {
@@ -19,13 +52,21 @@
     }
     .card:hover { transform:translateY(-4px); }
     .count { font-size:28px; font-weight:bold; color:#2563eb; margin-top:10px; }
-    table { width:100%; border-collapse:collapse; margin-top:30px; background:white;
+    .chart-section {
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap:30px;
+      margin-top: 40px;
+    }
+    canvas { background:white; padding:20px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+    table { width:100%; border-collapse:collapse; margin-top:40px; background:white;
             border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.06);}
     th,td { padding:12px 16px; border-bottom:1px solid #e5e7eb; text-align:left; }
     th { background:#f1f5f9; }
     tr:hover { background:#f9fafb; }
     a.btn { display:inline-block; padding:8px 14px; background:#2563eb; color:white;
             border-radius:6px; text-decoration:none; margin-top:10px; }
+    a.btn:hover { background:#1d4ed8; }
   </style>
 </head>
 <body>
@@ -37,11 +78,24 @@
     <div class="card"><h3>Total Events</h3><div class="count"><%= total %></div></div>
     <div class="card"><h3>Pending</h3><div class="count"><%= pending %></div></div>
     <div class="card"><h3>Approved</h3><div class="count"><%= approved %></div></div>
-   
     <div class="card"><h3>Organizers</h3><div class="count"><%= organizers %></div></div>
   </div>
 
-  <h2>Recent Events</h2>
+  <!-- Chart Section -->
+  <<div class="chart-section">
+  <div class="chart-card">
+    <h3>Status Distribution</h3>
+    <div class="chart-container"><canvas id="statusChart"></canvas></div>
+  </div>
+
+  <div class="chart-card">
+    <h3>Events per Month</h3>
+    <div class="chart-container"><canvas id="monthChart"></canvas></div>
+  </div>
+</div>
+
+
+  <h2 style="margin-top:50px;">Recent Events</h2>
   <table>
     <thead>
       <tr><th>Title</th><th>Organizer</th><th>Date</th><th>Status</th></tr>
@@ -61,5 +115,55 @@
       <% } %>
     </tbody>
   </table>
+
+  <script>
+    // ====== Status Chart ======
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+      type: 'pie',
+      data: {
+        labels: ['Approved', 'Pending', 'Rejected'],
+        datasets: [{
+          label: 'Event Status',
+          data: [<%= approved %>, <%= pending %>, <%= rejected %>],
+          backgroundColor: ['#22c55e', '#facc15', '#ef4444'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+
+    // ====== Monthly Events Chart ======
+    const monthCtx = document.getElementById('monthChart').getContext('2d');
+    const monthLabels = <%- JSON.stringify(eventsByMonth.map(e => 
+      new Date(2024, e.month - 1).toLocaleString('default', { month: 'short' })
+    )) %>;
+    const monthCounts = <%- JSON.stringify(eventsByMonth.map(e => e.count)) %>;
+
+    new Chart(monthCtx, {
+      type: 'bar',
+      data: {
+        labels: monthLabels,
+        datasets: [{
+          label: 'Events Created',
+          data: monthCounts,
+          backgroundColor: '#2563eb',
+          borderRadius: 8
+        }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  </script>
 </body>
 </html>

@@ -44,13 +44,14 @@ router.post('/login', async (req, res) => {
 // ===== Admin Dashboard =====
 router.get('/dashboard', ensureAuthenticated, isAdmin, async (req, res) => {
   try {
-    // Fetch counts
+    // Stats summary
     const [[{ total }]] = await pool.query('SELECT COUNT(*) AS total FROM events');
     const [[{ pending }]] = await pool.query("SELECT COUNT(*) AS pending FROM events WHERE status='pending'");
     const [[{ approved }]] = await pool.query("SELECT COUNT(*) AS approved FROM events WHERE status='approved'");
     const [[{ rejected }]] = await pool.query("SELECT COUNT(*) AS rejected FROM events WHERE status='rejected'");
     const [[{ organizers }]] = await pool.query("SELECT COUNT(*) AS organizers FROM users WHERE role='organizer'");
 
+    // Recent events table
     const [recentEvents] = await pool.query(`
       SELECT e.id, e.title, e.status, e.date, u.name AS organizer
       FROM events e
@@ -59,6 +60,18 @@ router.get('/dashboard', ensureAuthenticated, isAdmin, async (req, res) => {
       LIMIT 5
     `);
 
+    // Events per month (for bar chart)
+    const [eventsByMonth] = await pool.query(`
+      SELECT 
+        MONTH(date) AS month,
+        COUNT(*) AS count
+      FROM events
+      WHERE status IN ('approved', 'pending', 'rejected')
+      GROUP BY MONTH(date)
+      ORDER BY MONTH(date)
+    `);
+
+    // Send data to dashboard view
     res.render('admin/dashboard', {
       admin: req.session.user,
       total,
@@ -66,7 +79,8 @@ router.get('/dashboard', ensureAuthenticated, isAdmin, async (req, res) => {
       approved,
       rejected,
       organizers,
-      recentEvents
+      recentEvents,
+      eventsByMonth
     });
   } catch (err) {
     console.error('Dashboard error:', err);
