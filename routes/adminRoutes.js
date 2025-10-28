@@ -42,9 +42,38 @@ router.post('/login', async (req, res) => {
 });
 
 // ===== Admin Dashboard =====
-router.get('/dashboard', ensureAuthenticated, isAdmin, (req, res) => {
-  res.render('admin/dashboard', { admin: req.session.user });
+router.get('/dashboard', ensureAuthenticated, isAdmin, async (req, res) => {
+  try {
+    // Fetch counts
+    const [[{ total }]] = await pool.query('SELECT COUNT(*) AS total FROM events');
+    const [[{ pending }]] = await pool.query("SELECT COUNT(*) AS pending FROM events WHERE status='pending'");
+    const [[{ approved }]] = await pool.query("SELECT COUNT(*) AS approved FROM events WHERE status='approved'");
+    const [[{ rejected }]] = await pool.query("SELECT COUNT(*) AS rejected FROM events WHERE status='rejected'");
+    const [[{ organizers }]] = await pool.query("SELECT COUNT(*) AS organizers FROM users WHERE role='organizer'");
+
+    const [recentEvents] = await pool.query(`
+      SELECT e.id, e.title, e.status, e.date, u.name AS organizer
+      FROM events e
+      LEFT JOIN users u ON e.created_by = u.id
+      ORDER BY e.id DESC
+      LIMIT 5
+    `);
+
+    res.render('admin/dashboard', {
+      admin: req.session.user,
+      total,
+      pending,
+      approved,
+      rejected,
+      organizers,
+      recentEvents
+    });
+  } catch (err) {
+    console.error('Dashboard error:', err);
+    res.send('Server error loading dashboard.');
+  }
 });
+
 
 
 import { getPendingEvents, updateEventStatus, getEventById } from '../models/eventModel.js';
