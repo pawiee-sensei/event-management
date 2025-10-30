@@ -8,6 +8,7 @@ import pool from './config/db.js';
 import adminRoutes from './routes/adminRoutes.js';
 import organizerRoutes from './routes/organizerRoutes.js';
 import publicRoutes from './routes/publicRoutes.js'; // ✅ NEW: Public events page
+import commentRoutes from './routes/commentRoutes.js';
 
 const MySQLStore = expressMySQLSession(session);
 const app = express();
@@ -58,6 +59,7 @@ app.get('/', (req, res) => {
   res.send('<h1>Event Management System</h1><p>Server running successfully.</p><p><a href="/events">View Public Events</a></p>');
 });
 
+app.use('/comments', commentRoutes);
 app.use('/admin', adminRoutes);
 app.use('/organizer', organizerRoutes);
 app.use('/', publicRoutes); // ✅ NEW: public-facing routes

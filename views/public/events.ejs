@@ -2,13 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Events</title>
+  <title>Community Events Feed</title>
   <style>
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f9fafb;
+      background: #f1f5f9;
       margin: 0;
-      padding: 0;
       color: #1e293b;
     }
 
@@ -24,13 +23,14 @@
 
     /* Filter Bar */
     .filter-bar {
-      display: flex; flex-wrap: wrap;
+      display: flex;
+      flex-wrap: wrap;
       justify-content: center;
       gap: 12px;
       background: #fff;
       padding: 15px 25px;
       margin: 25px auto;
-      max-width: 1100px;
+      max-width: 900px;
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
@@ -53,119 +53,162 @@
     }
     .filter-bar button:hover { background: #1d4ed8; }
 
-    /* Event Grid */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto 50px;
+    /* Feed Layout */
+    .feed {
+      max-width: 850px;
+      margin: 0 auto 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 35px;
       padding: 0 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 25px;
     }
-    .event-card {
+
+    .post {
       background: #fff;
       border-radius: 12px;
       box-shadow: 0 3px 10px rgba(0,0,0,0.08);
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .post-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .post-header h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .post-header p {
+      margin: 6px 0 0;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .post img {
+      width: 100%;
+      max-height: 360px;
+      object-fit: cover;
       cursor: pointer;
     }
-    .event-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-    }
-    .event-card img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      background: #e2e8f0;
-    }
-    .event-info { padding: 18px 20px; display: flex; flex-direction: column; flex-grow: 1; }
-    .event-info h3 { margin: 0 0 8px; color: #1e293b; font-size: 20px; }
-    .event-info p { margin: 5px 0; color: #475569; }
-    .event-footer { margin-top: auto; font-size: 0.9em; color: #64748b; }
 
-    footer {
-      text-align: center; padding: 20px;
-      background: #f1f5f9; color: #64748b;
+    .post-content {
+      padding: 20px;
     }
 
-    /* MODAL STYLES */
+    .post-content p {
+      line-height: 1.6;
+    }
+
+    .comment-section {
+      padding: 18px 22px;
+      border-top: 1px solid #e5e7eb;
+      background: #f9fafb;
+    }
+
+    .comment {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+    }
+
+    .comment small {
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    form.comment-form {
+      margin-top: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    form.comment-form input, form.comment-form textarea {
+      padding: 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-family: inherit;
+    }
+
+    form.comment-form button {
+      align-self: flex-end;
+      padding: 8px 14px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    form.comment-form button:hover {
+      background: #1d4ed8;
+    }
+
+    /* Modal */
     .modal {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6);
+      inset: 0;
+      background: rgba(15,23,42,0.45);
       display: flex;
       justify-content: center;
       align-items: center;
-      opacity: 0; pointer-events: none;
+      opacity: 0;
+      pointer-events: none;
       transition: opacity 0.3s ease;
       z-index: 1000;
+      backdrop-filter: blur(4px);
     }
+
     .modal.active {
-      opacity: 1; pointer-events: auto;
+      opacity: 1;
+      pointer-events: auto;
     }
-    .modal-content {
+
+    .modal-dialog {
       background: white;
       border-radius: 12px;
-      max-width: 800px;
       width: 90%;
-      max-height: 90vh;
-      overflow-y: auto;
-      animation: fadeIn 0.3s ease;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      max-width: 600px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
+
     .modal-header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       border-bottom: 1px solid #e5e7eb;
-      background: #f8fafc;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
     }
-    .modal-header h2 { margin: 0; }
+
     .close-btn {
       background: none;
       border: none;
-      font-size: 24px;
+      font-size: 22px;
       cursor: pointer;
-      color: #64748b;
-    }
-    .modal-body {
-      padding: 20px 25px;
-      display: flex; flex-direction: column; align-items: center;
-    }
-    .modal-body img {
-      width: 100%;
-      max-width: 500px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
-    .modal-body p {
-      margin: 6px 0;
-      color: #334155;
-      width: 100%;
-      max-width: 600px;
-    }
-    @keyframes fadeIn {
-      from { transform: translateY(-10px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
     }
 
-    @media (max-width: 600px) {
-      .modal-body img { max-width: 100%; }
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #f1f5f9;
+      color: #64748b;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Discover Upcoming Events</h1>
+    <h1>Discover & Discuss Events</h1>
   </header>
 
-  <!-- FILTER FORM -->
+  <!-- SEARCH & FILTER -->
   <form class="filter-bar" method="GET" action="/events">
-    <input type="text" name="search" value="<%= search || '' %>" placeholder="Search by title, location, or organizer">
+    <input type="text" name="search" value="<%= search || '' %>" placeholder="Search events...">
     <select name="category">
       <option value="">All Categories</option>
       <option value="Food" <%= category === 'Food' ? 'selected' : '' %>>Food</option>
@@ -178,32 +221,46 @@
     <button type="submit">Filter</button>
   </form>
 
-  <!-- EVENT GRID -->
-  <div class="container">
+  <!-- EVENT FEED -->
+  <div class="feed">
     <% if (events.length === 0) { %>
-      <p style="text-align:center; width:100%;">No approved events found.</p>
+      <p style="text-align:center;">No approved events found.</p>
     <% } else { %>
       <% events.forEach(event => { %>
-        <div class="event-card"
-             data-title="<%= event.title %>"
-             data-desc="<%= event.description %>"
-             data-date="<%= event.date %>"
-             data-time="<%= event.time %>"
-             data-loc="<%= event.location %>"
-             data-org="<%= event.organizer_name %>"
-             data-cat="<%= event.category %>"
-             data-img="/uploads/banners/<%= event.image %>">
+        <div class="post">
+          <div class="post-header">
+            <h2><%= event.title %></h2>
+            <p>By <%= event.organizer_name || 'Unknown' %> • <%= new Date(event.date).toDateString() %></p>
+          </div>
+
           <% if (event.image) { %>
-            <img src="/uploads/banners/<%= event.image %>" alt="Event Banner">
-          <% } else { %>
-            <img src="https://via.placeholder.com/400x220?text=No+Banner" alt="No Banner">
+            <img src="/uploads/banners/<%= event.image %>" alt="<%= event.title %>" onclick="openModal(<%= event.id %>)">
           <% } %>
-          <div class="event-info">
-            <h3><%= event.title %></h3>
-            <p><strong>Date:</strong> <%= event.date %> at <%= event.time %></p>
+
+          <div class="post-content">
+            <p><%= event.description %></p>
             <p><strong>Location:</strong> <%= event.location %></p>
-            <p><strong>Category:</strong> <%= event.category %></p>
-            <div class="event-footer"><em>Approved Event</em></div>
+            <p><strong>Category:</strong> <%= event.category || 'N/A' %></p>
+          </div>
+
+          <div class="comment-section">
+            <% if (event.comments.length === 0) { %>
+              <p>No comments yet. Be the first to comment!</p>
+            <% } else { %>
+              <% event.comments.forEach(c => { %>
+                <div class="comment">
+                  <strong><%= c.user_name %></strong>
+                  <p><%= c.comment %></p>
+                  <small><%= new Date(c.created_at).toLocaleString() %></small>
+                </div>
+              <% }) %>
+            <% } %>
+
+            <form class="comment-form" action="/events/<%= event.id %>/comment" method="POST">
+              <input type="text" name="user_name" placeholder="Your name" required>
+              <textarea name="comment" placeholder="Write a comment..." required></textarea>
+              <button type="submit">Post Comment</button>
+            </form>
           </div>
         </div>
       <% }) %>
@@ -212,19 +269,12 @@
 
   <!-- MODAL -->
   <div id="eventModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-dialog">
       <div class="modal-header">
-        <h2 id="modalTitle">Event Title</h2>
-        <button class="close-btn" id="closeModal">&times;</button>
+        <h3 id="modalTitle">Event Details</h3>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
       </div>
-      <div class="modal-body">
-        <img id="modalImg" src="" alt="Banner">
-        <p id="modalDesc"></p>
-        <p><strong>Date:</strong> <span id="modalDate"></span> at <span id="modalTime"></span></p>
-        <p><strong>Location:</strong> <span id="modalLoc"></span></p>
-        <p><strong>Category:</strong> <span id="modalCat"></span></p>
-        <p><strong>Organizer:</strong> <span id="modalOrg"></span></p>
-      </div>
+      <div id="modalContent"></div>
     </div>
   </div>
 
@@ -233,38 +283,30 @@
   </footer>
 
   <script>
-    const cards = document.querySelectorAll('.event-card');
     const modal = document.getElementById('eventModal');
-    const closeModal = document.getElementById('closeModal');
-
     const modalTitle = document.getElementById('modalTitle');
-    const modalImg = document.getElementById('modalImg');
-    const modalDesc = document.getElementById('modalDesc');
-    const modalDate = document.getElementById('modalDate');
-    const modalTime = document.getElementById('modalTime');
-    const modalLoc = document.getElementById('modalLoc');
-    const modalCat = document.getElementById('modalCat');
-    const modalOrg = document.getElementById('modalOrg');
+    const modalContent = document.getElementById('modalContent');
 
-    // Open modal when a card is clicked
-    cards.forEach(card => {
-      card.addEventListener('click', () => {
-        modal.classList.add('active');
-        modalTitle.textContent = card.dataset.title;
-        modalDesc.textContent = card.dataset.desc;
-        modalDate.textContent = card.dataset.date;
-        modalTime.textContent = card.dataset.time;
-        modalLoc.textContent = card.dataset.loc;
-        modalCat.textContent = card.dataset.cat;
-        modalOrg.textContent = card.dataset.org;
-        modalImg.src = card.dataset.img || 'https://via.placeholder.com/400x220?text=No+Banner';
-      });
-    });
+    function openModal(id) {
+      const event = <%- JSON.stringify(events) %>.find(e => e.id === id);
+      modal.classList.add('active');
+      modalTitle.textContent = event.title;
+      modalContent.innerHTML = `
+        <p><strong>Description:</strong> ${event.description}</p>
+        <p><strong>Date:</strong> ${new Date(event.date).toDateString()}</p>
+        <p><strong>Location:</strong> ${event.location}</p>
+        <p><strong>Category:</strong> ${event.category || 'N/A'}</p>
+        <p><strong>Organizer:</strong> ${event.organizer_name}</p>
+        ${event.proof ? `<p><a href="/uploads/proofs/${event.proof}" target="_blank">View Proof</a></p>` : ''}
+      `;
+    }
 
-    // Close modal
-    closeModal.addEventListener('click', () => modal.classList.remove('active'));
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) modal.classList.remove('active');
+    function closeModal() {
+      modal.classList.remove('active');
+    }
+
+    modal.addEventListener('click', e => {
+      if (e.target === modal) closeModal();
     });
   </script>
 </body>
