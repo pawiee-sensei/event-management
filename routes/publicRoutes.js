@@ -49,26 +49,30 @@ router.get('/events', async (req, res) => {
   }
 });
 
-// ===== Post Comment =====
+// ===== Post Comment or Reply =====
 router.post('/events/:id/comment', async (req, res) => {
   const { id } = req.params;
-  const { user_name, comment } = req.body;
+  const { user_name, comment, parent_id } = req.body;
 
   try {
     if (!user_name || !comment.trim()) {
-      return res.redirect('/events');
+      return res.status(400).json({ error: 'Invalid comment' });
     }
 
-    await pool.query(
-      'INSERT INTO comments (event_id, user_name, comment) VALUES (?, ?, ?)',
-      [id, user_name, comment.trim()]
+    const [result] = await pool.query(
+      'INSERT INTO comments (event_id, user_name, comment, parent_id) VALUES (?, ?, ?, ?)',
+      [id, user_name, comment.trim(), parent_id || null]
     );
 
-    res.redirect('/events');
+    res.status(200).json({ success: true, id: result.insertId });
   } catch (err) {
     console.error('Comment error:', err);
-    res.send('Server error posting comment.');
+    res.status(500).json({ error: 'Server error posting comment' });
   }
 });
+
+
+
+
 
 export default router;

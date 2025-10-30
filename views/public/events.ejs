@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Community Events Feed</title>
   <style>
     body {
@@ -23,8 +23,7 @@
 
     /* Filter Bar */
     .filter-bar {
-      display: flex;
-      flex-wrap: wrap;
+      display: flex; flex-wrap: wrap;
       justify-content: center;
       gap: 12px;
       background: #fff;
@@ -34,7 +33,7 @@
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
-    .filter-bar input[type="text"], .filter-bar select {
+    .filter-bar input, .filter-bar select {
       padding: 10px 14px;
       border: 1px solid #cbd5e1;
       border-radius: 6px;
@@ -49,7 +48,7 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: background 0.3s;
     }
     .filter-bar button:hover { background: #1d4ed8; }
 
@@ -62,252 +61,438 @@
       gap: 35px;
       padding: 0 20px;
     }
-
     .post {
       background: #fff;
       border-radius: 12px;
       box-shadow: 0 3px 10px rgba(0,0,0,0.08);
       overflow: hidden;
     }
-
-    .post-header {
-      padding: 18px 22px;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .post-header h2 {
-      margin: 0;
-      font-size: 22px;
-    }
-
-    .post-header p {
-      margin: 6px 0 0;
-      color: #64748b;
-      font-size: 14px;
-    }
-
-    .post img {
-      width: 100%;
-      max-height: 360px;
-      object-fit: cover;
-      cursor: pointer;
-    }
-
-    .post-content {
-      padding: 20px;
-    }
-
-    .post-content p {
-      line-height: 1.6;
-    }
-
-    .comment-section {
-      padding: 18px 22px;
-      border-top: 1px solid #e5e7eb;
-      background: #f9fafb;
-    }
-
-    .comment {
-      background: white;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 10px 14px;
-      margin-bottom: 10px;
-    }
-
-    .comment small {
-      color: #64748b;
-      font-size: 12px;
-    }
-
-    form.comment-form {
-      margin-top: 15px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    form.comment-form input, form.comment-form textarea {
-      padding: 8px;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      font-family: inherit;
-    }
-
-    form.comment-form button {
-      align-self: flex-end;
-      padding: 8px 14px;
-      background: #2563eb;
-      color: white;
+    .post-header { padding: 18px 22px; border-bottom: 1px solid #e5e7eb; }
+    .post-header h2 { margin: 0; font-size: 22px; }
+    .post-header p { margin: 6px 0 0; color: #64748b; font-size: 14px; }
+    .post img { width: 100%; max-height: 360px; object-fit: cover; cursor: pointer; }
+    .post-content { padding: 20px; line-height: 1.6; }
+    .open-comments-btn {
+      background: none;
       border: none;
-      border-radius: 6px;
+      color: #2563eb;
+      font-size: 15px;
       cursor: pointer;
+      margin: 0 0 20px 22px;
     }
-
-    form.comment-form button:hover {
-      background: #1d4ed8;
-    }
+    .open-comments-btn:hover { text-decoration: underline; }
 
     /* Modal */
     .modal {
-      position: fixed;
-      inset: 0;
+      position: fixed; inset: 0;
       background: rgba(15,23,42,0.45);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-      z-index: 1000;
-      backdrop-filter: blur(4px);
+      display: flex; justify-content: center; align-items: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 1000; backdrop-filter: blur(4px);
     }
-
-    .modal.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
+    .modal.active { opacity: 1; pointer-events: auto; }
     .modal-dialog {
-      background: white;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 600px;
+      background: white; border-radius: 12px;
+      width: 90%; max-width: 650px;
       padding: 20px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
-
     .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 10px;
+    }
+    .close-btn { background: none; border: none; font-size: 22px; cursor: pointer; }
+
+    /* Comments */
+    .comment-thread { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
+    .comment-item {
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 10px 14px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #e5e7eb;
-      padding-bottom: 10px;
-      margin-bottom: 10px;
+      gap: 10px;
+      position: relative;
+      transition: background 0.2s ease;
+    }
+    .comment-item:hover { background: #f9fafb; }
+    .comment-item .content { flex: 1; }
+    .comment-item strong { font-size: 15px; color: #1e293b; }
+    .comment-item p { margin: 4px 0; color: #334155; }
+    .comment-item small { color: #64748b; font-size: 12px; }
+
+    /* Reply thread - adds the vertical connector line */
+    .reply-thread {
+    margin-left: 45px;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    padding-left: 12px;
+    border-left: 2px solid #e2e8f0;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .reply-thread.active {
+    max-height: 500px;
+    overflow: visible;
+  }
+
+  .comment-item img {
+    flex-shrink: 0;
+  }
+    .comment-item.reply {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-top: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 22px;
-      cursor: pointer;
+    .reply-btn {
+      background: none; border: none; color: #2563eb;
+      font-size: 13px; cursor: pointer; margin-top: 3px;
     }
+    .reply-btn:hover { text-decoration: underline; }
 
-    footer {
-      text-align: center;
-      padding: 20px;
-      background: #f1f5f9;
-      color: #64748b;
+    .comment-form {
+      margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 10px;
     }
+    .comment-form textarea, .comment-form input {
+      width: 100%; padding: 8px; border: 1px solid #cbd5e1;
+      border-radius: 6px; resize: vertical;
+    }
+    .comment-form button {
+      background: #2563eb; color: white; border: none;
+      border-radius: 6px; padding: 8px 14px; cursor: pointer; float: right;
+    }
+    .comment-form button:hover { background: #1d4ed8; }
+
+    footer { text-align: center; padding: 20px; background: #f1f5f9; color: #64748b; }
+
+    @keyframes fadeSlideIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Discover & Discuss Events</h1>
-  </header>
+  <header><h1>Discover & Discuss Events</h1></header>
 
   <!-- SEARCH & FILTER -->
   <form class="filter-bar" method="GET" action="/events">
     <input type="text" name="search" value="<%= search || '' %>" placeholder="Search events...">
     <select name="category">
       <option value="">All Categories</option>
-      <option value="Food" <%= category === 'Food' ? 'selected' : '' %>>Food</option>
-      <option value="Music" <%= category === 'Music' ? 'selected' : '' %>>Music</option>
-      <option value="Sports" <%= category === 'Sports' ? 'selected' : '' %>>Sports</option>
-      <option value="Technology" <%= category === 'Technology' ? 'selected' : '' %>>Technology</option>
-      <option value="Community" <%= category === 'Community' ? 'selected' : '' %>>Community</option>
-      <option value="Education" <%= category === 'Education' ? 'selected' : '' %>>Education</option>
+      <option value="Food" <%= category==='Food'?'selected':'' %>>Food</option>
+      <option value="Music" <%= category==='Music'?'selected':'' %>>Music</option>
+      <option value="Sports" <%= category==='Sports'?'selected':'' %>>Sports</option>
+      <option value="Technology" <%= category==='Technology'?'selected':'' %>>Technology</option>
+      <option value="Community" <%= category==='Community'?'selected':'' %>>Community</option>
+      <option value="Education" <%= category==='Education'?'selected':'' %>>Education</option>
     </select>
     <button type="submit">Filter</button>
   </form>
 
-  <!-- EVENT FEED -->
   <div class="feed">
-    <% if (events.length === 0) { %>
+    <% if(events.length===0){ %>
       <p style="text-align:center;">No approved events found.</p>
-    <% } else { %>
-      <% events.forEach(event => { %>
-        <div class="post">
-          <div class="post-header">
-            <h2><%= event.title %></h2>
-            <p>By <%= event.organizer_name || 'Unknown' %> • <%= new Date(event.date).toDateString() %></p>
-          </div>
-
-          <% if (event.image) { %>
-            <img src="/uploads/banners/<%= event.image %>" alt="<%= event.title %>" onclick="openModal(<%= event.id %>)">
-          <% } %>
-
-          <div class="post-content">
-            <p><%= event.description %></p>
-            <p><strong>Location:</strong> <%= event.location %></p>
-            <p><strong>Category:</strong> <%= event.category || 'N/A' %></p>
-          </div>
-
-          <div class="comment-section">
-            <% if (event.comments.length === 0) { %>
-              <p>No comments yet. Be the first to comment!</p>
-            <% } else { %>
-              <% event.comments.forEach(c => { %>
-                <div class="comment">
-                  <strong><%= c.user_name %></strong>
-                  <p><%= c.comment %></p>
-                  <small><%= new Date(c.created_at).toLocaleString() %></small>
-                </div>
-              <% }) %>
-            <% } %>
-
-            <form class="comment-form" action="/events/<%= event.id %>/comment" method="POST">
-              <input type="text" name="user_name" placeholder="Your name" required>
-              <textarea name="comment" placeholder="Write a comment..." required></textarea>
-              <button type="submit">Post Comment</button>
-            </form>
-          </div>
+    <% }else{ events.forEach(event=>{ %>
+      <div class="post">
+        <div class="post-header">
+          <h2><%=event.title%></h2>
+          <p>By <%=event.organizer_name||'Unknown'%> • <%=new Date(event.date).toDateString()%></p>
         </div>
-      <% }) %>
-    <% } %>
+        <% if(event.image){ %>
+          <img src="/uploads/banners/<%=event.image%>" alt="<%=event.title%>" onclick="openEventModal(<%=event.id%>)">
+        <% } %>
+        <div class="post-content">
+          <p><%=event.description%></p>
+          <p><strong>Location:</strong> <%=event.location%></p>
+          <p><strong>Category:</strong> <%=event.category||'N/A'%></p>
+        </div>
+        <button class="open-comments-btn" data-event="<%=event.id%>">💬 View Comments (<%=event.comments.length%>)</button>
+      </div>
+    <% }) } %>
   </div>
 
-  <!-- MODAL -->
-  <div id="eventModal" class="modal">
+  <!-- COMMENTS MODAL -->
+  <div id="commentsModal" class="modal">
     <div class="modal-dialog">
       <div class="modal-header">
-        <h3 id="modalTitle">Event Details</h3>
-        <button class="close-btn" onclick="closeModal()">&times;</button>
+        <h3 id="commentsTitle">Comments</h3>
+        <button class="close-btn" onclick="closeCommentsModal()">&times;</button>
       </div>
-      <div id="modalContent"></div>
+      <div id="commentsContent" style="max-height:70vh; overflow-y:auto;"></div>
     </div>
   </div>
 
-  <footer>
-    © <%= new Date().getFullYear() %> Event Management System
-  </footer>
+  <footer>© <%= new Date().getFullYear() %> Event Management System</footer>
 
-  <script>
-    const modal = document.getElementById('eventModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalContent = document.getElementById('modalContent');
+<script>
+  // ======= State =======
+  const eventsData = <%- JSON.stringify(events) %>;
+  const commentsModal = document.getElementById('commentsModal');
+  const commentsContent = document.getElementById('commentsContent');
+  const commentsTitle = document.getElementById('commentsTitle');
+  let currentEventId = null;
 
-    function openModal(id) {
-      const event = <%- JSON.stringify(events) %>.find(e => e.id === id);
-      modal.classList.add('active');
-      modalTitle.textContent = event.title;
-      modalContent.innerHTML = `
-        <p><strong>Description:</strong> ${event.description}</p>
-        <p><strong>Date:</strong> ${new Date(event.date).toDateString()}</p>
-        <p><strong>Location:</strong> ${event.location}</p>
-        <p><strong>Category:</strong> ${event.category || 'N/A'}</p>
-        <p><strong>Organizer:</strong> ${event.organizer_name}</p>
-        ${event.proof ? `<p><a href="/uploads/proofs/${event.proof}" target="_blank">View Proof</a></p>` : ''}
-      `;
-    }
+  // Track which comment IDs have their reply thread open
+  const openThreads = new Set();
 
-    function closeModal() {
-      modal.classList.remove('active');
-    }
-
-    modal.addEventListener('click', e => {
-      if (e.target === modal) closeModal();
+  // ======= Open modal from feed =======
+  document.querySelectorAll('.open-comments-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentEventId = parseInt(btn.dataset.event);
+      const ev = getEvent(currentEventId);
+      commentsTitle.textContent = ev.title;
+      renderAllComments(ev);
+      commentsModal.classList.add('active');
     });
-  </script>
+  });
+
+  // Close modal
+  commentsModal.addEventListener('click', (e) => {
+    if (e.target === commentsModal) commentsModal.classList.remove('active');
+  });
+
+  function getEvent(eventId) {
+    return eventsData.find(e => e.id === eventId);
+  }
+
+  // ======= Rendering =======
+  function renderAllComments(ev) {
+    const mainComments = ev.comments.filter(c => !c.parent_id);
+    const threadHTML = mainComments.map(c => renderCommentItem(ev, c)).join('');
+    commentsContent.innerHTML = `
+      <div class="comment-thread" id="comment-thread">
+        ${threadHTML || '<p>No comments yet.</p>'}
+      </div>
+      <form class="comment-form comment-form-root" data-event-id="${ev.id}">
+        <input type="hidden" name="parent_id" value="">
+        <input type="text" name="user_name" placeholder="Your name" required>
+        <textarea name="comment" placeholder="Write a comment..." required></textarea>
+        <button type="submit">Post</button>
+      </form>
+    `;
+  }
+
+  function renderCommentItem(ev, comment) {
+    const replies = ev.comments.filter(r => r.parent_id === comment.id);
+    const isOpen = openThreads.has(comment.id);
+    const btnLabel = isOpen ? 'Hide replies' : `View ${replies.length} repl${replies.length > 1 ? 'ies' : 'y'}`;
+
+    const repliesHTML = replies.map(renderReplyItem).join('');
+    return `
+      <div class="comment-item" data-comment-id="${comment.id}" id="comment-${comment.id}">
+        <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="user" width="32" height="32" style="border-radius:50%;align-self:flex-start;">
+        <div class="content">
+          <strong>${escapeHTML(comment.user_name)}</strong>
+          <p>${escapeHTML(comment.comment)}</p>
+          <small>${formatDate(comment.created_at)}</small>
+
+          <div style="margin-top:6px; display:flex; gap:12px;">
+            <button class="reply-btn" type="button" data-action="toggle-inline-reply" data-comment-id="${comment.id}">Reply</button>
+            ${replies.length > 0
+              ? `<button class="view-replies-btn" type="button" data-action="toggle-replies" data-comment-id="${comment.id}">${btnLabel}</button>`
+              : `<button class="view-replies-btn" type="button" data-action="toggle-replies" data-comment-id="${comment.id}" style="display:none;"></button>`}
+          </div>
+
+          <div class="reply-thread ${isOpen ? 'active' : ''}" id="replies-${comment.id}" style="${isOpen ? 'display:flex;max-height:500px;' : 'display:none;max-height:0;'}">
+            ${repliesHTML}
+          </div>
+
+          <div class="inline-reply-form" id="reply-form-${comment.id}" style="display:none; margin-top:10px;">
+            <form class="comment-form-inline" data-event-id="${ev.id}" data-parent-id="${comment.id}">
+              <input type="text" name="user_name" placeholder="Your name" required style="width:100%;padding:6px;margin-bottom:5px;">
+              <textarea name="comment" placeholder="Write a reply..." required style="width:100%;padding:6px;"></textarea>
+              <button type="submit" style="margin-top:5px;background:#2563eb;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">Reply</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderReplyItem(reply) {
+    return `
+      <div class="comment-item reply" data-reply-id="${reply.id}" style="opacity:0; transform:translateY(-6px); animation:fadeSlideIn .25s forwards;">
+        <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="user" width="28" height="28" style="border-radius:50%;align-self:flex-start;">
+        <div class="content">
+          <strong>${escapeHTML(reply.user_name)}</strong>
+          <p>${escapeHTML(reply.comment)}</p>
+          <small>${formatDate(reply.created_at)}</small>
+        </div>
+      </div>
+    `;
+  }
+
+  // ======= Event Delegation (all clicks inside modal content) =======
+  commentsContent.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+
+    const action = btn.dataset.action;
+
+    // Toggle inline reply form
+    if (action === 'toggle-inline-reply') {
+      const commentId = parseInt(btn.dataset.commentId);
+      const formWrap = document.getElementById(`reply-form-${commentId}`);
+      formWrap.style.display = formWrap.style.display === 'none' ? 'block' : 'none';
+      if (formWrap.style.display === 'block') {
+        const ta = formWrap.querySelector('textarea');
+        setTimeout(() => ta && ta.focus(), 0);
+      }
+      return;
+    }
+
+    // Toggle replies open/close
+    if (action === 'toggle-replies') {
+      const commentId = parseInt(btn.dataset.commentId);
+      toggleRepliesUI(commentId, btn);
+      return;
+    }
+  });
+
+  // ======= Submit handlers via delegation =======
+  commentsContent.addEventListener('submit', async (e) => {
+    const form = e.target;
+    // Root comment form
+    if (form.classList.contains('comment-form-root')) {
+      e.preventDefault();
+      const ev = getEvent(currentEventId);
+      const user_name = form.user_name.value.trim();
+      const comment = form.comment.value.trim();
+      if (!user_name || !comment) return;
+
+      try {
+        const res = await fetch(`/events/${ev.id}/comment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_name, comment, parent_id: null })
+        });
+        if (!res.ok) throw new Error();
+
+        const newComment = {
+          id: Date.now(),
+          user_name, comment,
+          created_at: new Date(),
+          parent_id: null
+        };
+        ev.comments.push(newComment);
+
+        // Append just this new main comment
+        const thread = document.getElementById('comment-thread');
+        thread.insertAdjacentHTML('beforeend', renderCommentItem(ev, newComment));
+
+        form.reset();
+      } catch (err) {
+        console.error(err);
+        alert('Error posting comment.');
+      }
+      return;
+    }
+
+    // Inline reply form
+    if (form.classList.contains('comment-form-inline')) {
+      e.preventDefault();
+      const evId = parseInt(form.dataset.eventId);
+      const parentId = parseInt(form.dataset.parentId);
+      const ev = getEvent(evId);
+
+      const user_name = form.user_name.value.trim();
+      const comment = form.comment.value.trim();
+      if (!user_name || !comment) return;
+
+      try {
+        const res = await fetch(`/events/${ev.id}/comment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_name, comment, parent_id: parentId })
+        });
+        if (!res.ok) throw new Error();
+
+        const newReply = {
+          id: Date.now(),
+          user_name, comment,
+          created_at: new Date(),
+          parent_id: parentId
+        };
+        ev.comments.push(newReply);
+
+        // Ensure replies UI exists and is opened
+        const thread = document.getElementById(`replies-${parentId}`);
+        const viewBtn = commentsContent.querySelector(`.view-replies-btn[data-comment-id="${parentId}"]`);
+
+        // If this was the first reply, show the view button
+        if (viewBtn && viewBtn.style.display === 'none') {
+          viewBtn.style.display = '';
+          viewBtn.textContent = 'Hide replies';
+        }
+
+        // Open the thread and remember it's open
+        openThreads.add(parentId);
+        openRepliesUI(thread, viewBtn);
+
+        // Append the new reply
+        thread.insertAdjacentHTML('beforeend', renderReplyItem(newReply));
+
+        // Reset and hide inline form
+        form.reset();
+        form.closest('.inline-reply-form').style.display = 'none';
+      } catch (err) {
+        console.error(err);
+        alert('Error posting reply.');
+      }
+      return;
+    }
+  });
+
+  // ======= UI helpers =======
+  function toggleRepliesUI(commentId, btnEl) {
+    const thread = document.getElementById(`replies-${commentId}`);
+    // If currently hidden, open it
+    if (!thread.classList.contains('active')) {
+      openThreads.add(commentId);
+      openRepliesUI(thread, btnEl);
+    } else {
+      openThreads.delete(commentId);
+      closeRepliesUI(thread, btnEl);
+    }
+  }
+
+  function openRepliesUI(thread, btnEl) {
+    thread.style.display = 'flex';
+    // force repaint to enable transition
+    // eslint-disable-next-line no-unused-expressions
+    thread.offsetHeight;
+    thread.classList.add('active');
+    thread.style.maxHeight = '500px';
+    if (btnEl) btnEl.textContent = 'Hide replies';
+  }
+
+  function closeRepliesUI(thread, btnEl) {
+    thread.style.maxHeight = '0px';
+    thread.classList.remove('active');
+    setTimeout(() => { thread.style.display = 'none'; }, 250);
+    if (btnEl) btnEl.textContent = 'View replies';
+  }
+
+  function formatDate(dt) {
+    const d = new Date(dt);
+    return d.toLocaleString();
+  }
+
+  function escapeHTML(s) {
+    return String(s)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;');
+  }
+</script>
+
+
+
 </body>
 </html>
