@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= event.title %> | Event Details</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f1f5f9;
+      margin: 0;
+      color: #1e293b;
+    }
+
+    header {
+      background: #2563eb;
+      color: white;
+      padding: 25px 40px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    main {
+      max-width: 900px;
+      margin: 30px auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    .banner {
+      width: 100%;
+      max-height: 380px;
+      object-fit: cover;
+      background: #e2e8f0;
+    }
+
+    .content {
+      padding: 25px 30px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      color: #1e293b;
+    }
+
+    .meta {
+      color: #64748b;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .meta strong {
+      color: #334155;
+    }
+
+    .description {
+      line-height: 1.7;
+      margin-bottom: 20px;
+      color: #334155;
+    }
+
+    .info {
+      background: #f8fafc;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      border-left: 4px solid #2563eb;
+    }
+
+    .info p {
+      margin: 4px 0;
+      font-size: 15px;
+    }
+
+    /* Comment Section */
+    .comments-section {
+      padding: 20px 30px 30px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .comments-section h2 {
+      font-size: 22px;
+      margin-bottom: 15px;
+    }
+
+    .comment-thread {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .comment-item {
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 12px 15px;
+      display: flex;
+      gap: 12px;
+      transition: background 0.2s ease;
+    }
+
+    .comment-item:hover {
+      background: #f1f5f9;
+    }
+
+    .comment-item img {
+      flex-shrink: 0;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+    }
+
+    .comment-item .content {
+      flex: 1;
+    }
+
+    .comment-item strong {
+      color: #1e293b;
+    }
+
+    .comment-item p {
+      margin: 4px 0;
+      color: #334155;
+      line-height: 1.5;
+    }
+
+    .comment-item small {
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    .reply-thread {
+      margin-left: 45px;
+      padding-left: 12px;
+      border-left: 2px solid #e2e8f0;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .reply-thread.active {
+      display: flex;
+    }
+
+    .reply-btn, .view-replies-btn {
+      background: none;
+      border: none;
+      color: #2563eb;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 3px;
+    }
+
+    .reply-btn:hover, .view-replies-btn:hover {
+      text-decoration: underline;
+    }
+
+    .comment-form {
+      border-top: 1px solid #e2e8f0;
+      padding-top: 15px;
+      margin-top: 10px;
+    }
+
+    .comment-form input, .comment-form textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      resize: vertical;
+      margin-bottom: 8px;
+      font-family: inherit;
+    }
+
+    .comment-form button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      cursor: pointer;
+      float: right;
+    }
+
+    .comment-form button:hover {
+      background: #1d4ed8;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #f1f5f9;
+      color: #64748b;
+      margin-top: 40px;
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .back-btn:hover {
+      text-decoration: underline;
+    }
+
+    @keyframes fadeSlideIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Event Details</h1>
+  </header>
+
+  <main>
+    <% if (event.image) { %>
+      <img src="/uploads/banners/<%= event.image %>" alt="<%= event.title %>" class="banner">
+    <% } %>
+
+    <div class="content">
+      <a href="/events" class="back-btn">← Back to Events</a>
+
+      <h1><%= event.title %></h1>
+      <div class="meta">
+        By <strong><%= event.organizer_name || 'Unknown' %></strong> •
+        <%= new Date(event.date).toDateString() %> •
+        <%= event.location %>
+      </div>
+
+      <p class="description"><%= event.description %></p>
+
+      <div class="info">
+        <p><strong>Category:</strong> <%= event.category || 'N/A' %></p>
+        <% if (event.proof) { %>
+          <p><strong>Proof:</strong> <a href="/uploads/proofs/<%= event.proof %>" target="_blank">View Document</a></p>
+        <% } %>
+      </div>
+
+      <!-- 💬 Comments Section -->
+      <section class="comments-section">
+        <h2>Comments</h2>
+
+        <div class="comment-thread" id="commentThread">
+          <% if (event.comments.length === 0) { %>
+            <p>No comments yet. Be the first to comment!</p>
+          <% } else { %>
+            <% event.comments.forEach(c => { %>
+              <div class="comment-item" id="comment-<%= c.id %>">
+                <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="user">
+                <div class="content">
+                  <strong><%= c.user_name %></strong>
+                  <p><%= c.comment %></p>
+                  <small><%= new Date(c.created_at).toLocaleString() %></small>
+
+                  <button class="reply-btn" data-parent="<%= c.id %>">Reply</button>
+
+                  <% if (c.replies && c.replies.length > 0) { %>
+                    <button class="view-replies-btn" data-parent="<%= c.id %>">
+                      View <%= c.replies.length %> repl<%= c.replies.length > 1 ? 'ies' : 'y' %>
+                    </button>
+
+                    <div class="reply-thread" id="replies-<%= c.id %>">
+                      <% c.replies.forEach(r => { %>
+                        <div class="comment-item reply">
+                          <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="user">
+                          <div class="content">
+                            <strong><%= r.user_name %></strong>
+                            <p><%= r.comment %></p>
+                            <small><%= new Date(r.created_at).toLocaleString() %></small>
+                          </div>
+                        </div>
+                      <% }) %>
+                    </div>
+                  <% } %>
+                </div>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+
+        <form class="comment-form" id="commentForm">
+          <input type="hidden" name="parent_id" value="">
+          <input type="text" name="user_name" placeholder="Your name" required>
+          <textarea name="comment" placeholder="Write a comment..." required></textarea>
+          <button type="submit">Post</button>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    © <%= new Date().getFullYear() %> Event Management System
+  </footer>
+
+  <script>
+    const eventId = <%= event.id %>;
+
+    document.querySelectorAll('.view-replies-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const parentId = btn.dataset.parent;
+        const thread = document.getElementById(`replies-${parentId}`);
+        const isOpen = thread.classList.toggle('active');
+        btn.textContent = isOpen ? 'Hide replies' : btn.textContent.replace('Hide', 'View');
+      });
+    });
+
+    // Reply form handling
+    document.querySelectorAll('.reply-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const parentId = btn.dataset.parent;
+        const form = document.getElementById('commentForm');
+        form.querySelector('input[name="parent_id"]').value = parentId;
+        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        form.querySelector('textarea').placeholder = 'Replying...';
+        form.querySelector('textarea').focus();
+      });
+    });
+
+    // Submit comment
+    document.getElementById('commentForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        user_name: form.user_name.value.trim(),
+        comment: form.comment.value.trim(),
+        parent_id: form.parent_id.value || null
+      };
+
+      if (!data.user_name || !data.comment) return alert('Please fill all fields.');
+
+      const res = await fetch(`/events/${eventId}/comment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      if (res.ok) {
+        location.reload(); // refresh to show instantly
+      } else {
+        alert('Failed to post comment.');
+      }
+    });
+  </script>
+</body>
+</html>

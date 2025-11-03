@@ -92,12 +92,42 @@ router.post('/login', async (req, res) => {
 });
 
 // ===== Organizer Dashboard =====
-router.get('/dashboard', ensureAuthenticated, (req, res) => {
+router.get('/dashboard', ensureAuthenticated, async (req, res) => {
   if (req.session.user.role !== 'organizer') {
     return res.status(403).send('Access denied.');
   }
-  res.render('organizer/dashboard', { organizer: req.session.user });
+
+  const organizerId = req.session.user.id;
+
+  try {
+    // Count events by status
+    const [[stats]] = await pool.query(`
+      SELECT
+        SUM(status = 'approved') AS approved,
+        SUM(status = 'pending') AS pending,
+        SUM(status = 'rejected') AS rejected
+      FROM events
+      WHERE created_by = ?
+    `, [organizerId]);
+
+    // Group events per month
+    const [monthly] = await pool.query(`
+      SELECT 
+        MONTH(created_at) AS month,
+        COUNT(*) AS total
+      FROM events
+      WHERE created_by = ?
+      GROUP BY MONTH(created_at)
+      ORDER BY month
+    `, [organizerId]);
+
+    res.render('organizer/dashboard', { organizer: req.session.user, stats, monthly });
+  } catch (err) {
+    console.error('Dashboard error:', err);
+    res.status(500).send('Error loading dashboard.');
+  }
 });
+
 
 // ===== Organizer Logout =====
 router.get('/logout', (req, res) => {

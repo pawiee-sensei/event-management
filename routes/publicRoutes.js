@@ -3,7 +3,9 @@ import pool from '../config/db.js';
 
 const router = express.Router();
 
-// ===== Public Event Feed with Search & Filter =====
+/* ===========================================
+   🧭 1. PUBLIC EVENT FEED (SEARCH & FILTER)
+   =========================================== */
 router.get('/events', async (req, res) => {
   const { search = '', category = '' } = req.query;
 
@@ -30,26 +32,28 @@ router.get('/events', async (req, res) => {
 
     query += ` ORDER BY e.created_at DESC`;
 
-    // Get events
+    // Fetch all approved events
     const [events] = await pool.query(query, params);
 
-    // Fetch comments for each event
+    // Load comments count for each event
     for (let event of events) {
       const [comments] = await pool.query(
-        'SELECT * FROM comments WHERE event_id = ? ORDER BY created_at ASC',
+        'SELECT COUNT(*) AS total FROM comments WHERE event_id = ?',
         [event.id]
       );
-      event.comments = comments;
+      event.commentCount = comments[0].total;
     }
 
     res.render('public/events', { events, search, category });
   } catch (err) {
     console.error('Feed error:', err);
-    res.send('Server error loading events.');
+    res.status(500).send('Server error loading events.');
   }
 });
 
-// ===== Post Comment or Reply =====
+/* ===========================================
+   💬 2. POST COMMENT OR REPLY
+   =========================================== */
 router.post('/events/:id/comment', async (req, res) => {
   const { id } = req.params;
   const { user_name, comment, parent_id } = req.body;
@@ -71,8 +75,53 @@ router.post('/events/:id/comment', async (req, res) => {
   }
 });
 
+/* ===========================================
+   🧾 3. EVENT DETAILS PAGE (/events/:id)
+   =========================================== */
+router.get('/events/:id', async (req, res) => {
+  const { id } = req.params;
 
+  try {
+    // Fetch single event with organizer info
+    const [eventRows] = await pool.query(`
+      SELECT e.*, u.name AS organizer_name
+      FROM events e
+      LEFT JOIN users u ON e.created_by = u.id
+      WHERE e.id = ? AND e.status = 'approved'
+    `, [id]);
 
+    if (eventRows.length === 0) {
+      return res.status(404).send('Event not found.');
+    }
 
+    const event = eventRows[0];
+
+    // Fetch comments and replies
+    const [comments] = await pool.query(
+      'SELECT * FROM comments WHERE event_id = ? ORDER BY created_at ASC',
+      [id]
+    );
+
+    // Build nested replies structure
+    const commentMap = {};
+    comments.forEach(c => commentMap[c.id] = { ...c, replies: [] });
+    const rootComments = [];
+
+    comments.forEach(c => {
+      if (c.parent_id) {
+        commentMap[c.parent_id]?.replies.push(commentMap[c.id]);
+      } else {
+        rootComments.push(commentMap[c.id]);
+      }
+    });
+
+    event.comments = rootComments;
+
+    res.render('public/eventDetails', { event });
+  } catch (err) {
+    console.error('Event details error:', err);
+    res.status(500).send('Error loading event details.');
+  }
+});
 
 export default router;

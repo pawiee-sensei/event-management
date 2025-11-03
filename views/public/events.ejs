@@ -56,7 +56,7 @@
     .feed {
       max-width: 850px;
       margin: 0 auto 60px;
-      display: flex;
+      display: flex;  
       flex-direction: column;
       gap: 35px;
       padding: 0 20px;
@@ -72,6 +72,7 @@
     .post-header p { margin: 6px 0 0; color: #64748b; font-size: 14px; }
     .post img { width: 100%; max-height: 360px; object-fit: cover; cursor: pointer; }
     .post-content { padding: 20px; line-height: 1.6; }
+
     .open-comments-btn {
       background: none;
       border: none;
@@ -105,76 +106,121 @@
     .close-btn { background: none; border: none; font-size: 22px; cursor: pointer; }
 
     /* Comments */
-    .comment-thread { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
+    .comment-thread {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 10px;
+    }
+
     .comment-item {
-      background: #f8fafc;
+      display: flex;
+      gap: 12px;
+      background: #f9fafb;
       border-radius: 10px;
       padding: 10px 14px;
-      display: flex;
-      gap: 10px;
-      position: relative;
+      border: 1px solid #e5e7eb;
       transition: background 0.2s ease;
     }
-    .comment-item:hover { background: #f9fafb; }
-    .comment-item .content { flex: 1; }
-    .comment-item strong { font-size: 15px; color: #1e293b; }
-    .comment-item p { margin: 4px 0; color: #334155; }
-    .comment-item small { color: #64748b; font-size: 12px; }
 
-    /* Reply thread - adds the vertical connector line */
+    .comment-item:hover {
+      background: #f1f5f9;
+    }
+
+    .comment-item img {
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+    }
+
+    .comment-content {
+      flex: 1;
+    }
+
+    .comment-content strong {
+      font-size: 15px;
+      color: #111827;
+    }
+
+    .comment-content p {
+      margin: 4px 0;
+      color: #334155;
+    }
+
+    .comment-content small {
+      display: inline-block;
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .comment-actions {
+      margin-top: 4px;
+    }
+
+    .reply-btn, .view-replies-btn {
+      background: none;
+      border: none;
+      color: #2563eb;
+      font-size: 13px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .reply-btn:hover, .view-replies-btn:hover {
+      text-decoration: underline;
+    }
+
+    /* Replies */
     .reply-thread {
-    margin-left: 45px;
-    flex-direction: column;
-    gap: 10px;
-    position: relative;
-    padding-left: 12px;
-    border-left: 2px solid #e2e8f0;
-    max-height: 0;
-    overflow: hidden;
-    transition: all 0.3s ease;
-  }
+      margin-left: 45px;
+      padding-left: 12px;
+      border-left: 2px solid #e2e8f0;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-  .reply-thread.active {
-    max-height: 500px;
-    overflow: visible;
-  }
+    .reply-thread.active {
+      display: flex;
+    }
 
-  .comment-item img {
-    flex-shrink: 0;
-  }
-    .comment-item.reply {
+    .reply {
       background: #fff;
       border: 1px solid #e2e8f0;
-      border-radius: 10px;
       padding: 10px 14px;
-      margin-top: 6px;
+      border-radius: 10px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
-    .reply-btn {
-      background: none; border: none; color: #2563eb;
-      font-size: 13px; cursor: pointer; margin-top: 3px;
-    }
-    .reply-btn:hover { text-decoration: underline; }
-
     .comment-form {
-      margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 10px;
+      margin-top: 20px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 15px;
     }
-    .comment-form textarea, .comment-form input {
-      width: 100%; padding: 8px; border: 1px solid #cbd5e1;
-      border-radius: 6px; resize: vertical;
+
+    .comment-form input, .comment-form textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      margin-bottom: 8px;
     }
+
     .comment-form button {
-      background: #2563eb; color: white; border: none;
-      border-radius: 6px; padding: 8px 14px; cursor: pointer; float: right;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      cursor: pointer;
+      float: right;
     }
-    .comment-form button:hover { background: #1d4ed8; }
+
+    .comment-form button:hover {
+      background: #1d4ed8;
+    }
 
     footer { text-align: center; padding: 20px; background: #f1f5f9; color: #64748b; }
-
-    @keyframes fadeSlideIn {
-    to { opacity: 1; transform: translateY(0); }
-  }
   </style>
 </head>
 <body>
@@ -196,23 +242,25 @@
   </form>
 
   <div class="feed">
-    <% if(events.length===0){ %>
+    <% if (events.length === 0) { %>
       <p style="text-align:center;">No approved events found.</p>
-    <% }else{ events.forEach(event=>{ %>
+    <% } else { events.forEach(event => { %>
       <div class="post">
         <div class="post-header">
-          <h2><%=event.title%></h2>
-          <p>By <%=event.organizer_name||'Unknown'%> • <%=new Date(event.date).toDateString()%></p>
+          <h2><%= event.title %></h2>
+          <p>By <%= event.organizer_name || 'Unknown' %> • <%= new Date(event.date).toDateString() %></p>
         </div>
-        <% if(event.image){ %>
-          <img src="/uploads/banners/<%=event.image%>" alt="<%=event.title%>" onclick="openEventModal(<%=event.id%>)">
+        <% if (event.image) { %>
+          <img src="/uploads/banners/<%= event.image %>" alt="<%= event.title %>" data-event-id="<%= event.id %>">
         <% } %>
         <div class="post-content">
-          <p><%=event.description%></p>
-          <p><strong>Location:</strong> <%=event.location%></p>
-          <p><strong>Category:</strong> <%=event.category||'N/A'%></p>
+          <p><%= event.description %></p>
+          <p><strong>Location:</strong> <%= event.location %></p>
+          <p><strong>Category:</strong> <%= event.category || 'N/A' %></p>
         </div>
-        <button class="open-comments-btn" data-event="<%=event.id%>">💬 View Comments (<%=event.comments.length%>)</button>
+        <button class="open-comments-btn" data-event="<%= event.id %>">
+          💬 View Comments (<%= event.commentCount || 0 %>)
+        </button>
       </div>
     <% }) } %>
   </div>
@@ -231,268 +279,123 @@
   <footer>© <%= new Date().getFullYear() %> Event Management System</footer>
 
 <script>
-  // ======= State =======
-  const eventsData = <%- JSON.stringify(events) %>;
   const commentsModal = document.getElementById('commentsModal');
   const commentsContent = document.getElementById('commentsContent');
   const commentsTitle = document.getElementById('commentsTitle');
   let currentEventId = null;
 
-  // Track which comment IDs have their reply thread open
-  const openThreads = new Set();
-
-  // ======= Open modal from feed =======
   document.querySelectorAll('.open-comments-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      currentEventId = parseInt(btn.dataset.event);
-      const ev = getEvent(currentEventId);
-      commentsTitle.textContent = ev.title;
-      renderAllComments(ev);
-      commentsModal.classList.add('active');
+    btn.addEventListener('click', async () => {
+      currentEventId = btn.dataset.event;
+      const title = btn.closest('.post').querySelector('h2').textContent;
+      await openCommentsModal(currentEventId, title);
     });
   });
 
-  // Close modal
-  commentsModal.addEventListener('click', (e) => {
-    if (e.target === commentsModal) commentsModal.classList.remove('active');
-  });
-
-  function getEvent(eventId) {
-    return eventsData.find(e => e.id === eventId);
+  function closeCommentsModal() {
+    commentsModal.classList.remove('active');
   }
 
-  // ======= Rendering =======
-  function renderAllComments(ev) {
-    const mainComments = ev.comments.filter(c => !c.parent_id);
-    const threadHTML = mainComments.map(c => renderCommentItem(ev, c)).join('');
+  commentsModal.addEventListener('click', e => {
+    if (e.target === commentsModal) closeCommentsModal();
+  });
+
+  async function openCommentsModal(eventId, title) {
+    commentsTitle.textContent = title;
+    const res = await fetch(`/comments/${eventId}`);
+    const comments = await res.json();
+    renderComments(comments);
+    commentsModal.classList.add('active');
+  }
+
+  function renderComments(comments) {
+    const mainComments = comments.filter(c => !c.parent_id);
+    const html = mainComments.map(c => renderComment(c, comments)).join('');
     commentsContent.innerHTML = `
-      <div class="comment-thread" id="comment-thread">
-        ${threadHTML || '<p>No comments yet.</p>'}
-      </div>
-      <form class="comment-form comment-form-root" data-event-id="${ev.id}">
+      <div class="comment-thread">${html || '<p>No comments yet.</p>'}</div>
+      <form class="comment-form" id="commentForm">
         <input type="hidden" name="parent_id" value="">
         <input type="text" name="user_name" placeholder="Your name" required>
-        <textarea name="comment" placeholder="Write a comment..." required></textarea>
+        <textarea name="comment_text" placeholder="Write a comment..." required></textarea>
         <button type="submit">Post</button>
       </form>
     `;
   }
 
-  function renderCommentItem(ev, comment) {
-    const replies = ev.comments.filter(r => r.parent_id === comment.id);
-    const isOpen = openThreads.has(comment.id);
-    const btnLabel = isOpen ? 'Hide replies' : `View ${replies.length} repl${replies.length > 1 ? 'ies' : 'y'}`;
-
-    const repliesHTML = replies.map(renderReplyItem).join('');
+  function renderComment(comment, all) {
+    const replies = all.filter(r => r.parent_id === comment.id);
     return `
-      <div class="comment-item" data-comment-id="${comment.id}" id="comment-${comment.id}">
-        <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="user" width="32" height="32" style="border-radius:50%;align-self:flex-start;">
-        <div class="content">
+      <div class="comment-item">
+        <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="user">
+        <div class="comment-content">
           <strong>${escapeHTML(comment.user_name)}</strong>
-          <p>${escapeHTML(comment.comment)}</p>
-          <small>${formatDate(comment.created_at)}</small>
-
-          <div style="margin-top:6px; display:flex; gap:12px;">
-            <button class="reply-btn" type="button" data-action="toggle-inline-reply" data-comment-id="${comment.id}">Reply</button>
-            ${replies.length > 0
-              ? `<button class="view-replies-btn" type="button" data-action="toggle-replies" data-comment-id="${comment.id}">${btnLabel}</button>`
-              : `<button class="view-replies-btn" type="button" data-action="toggle-replies" data-comment-id="${comment.id}" style="display:none;"></button>`}
+          <p>${escapeHTML(comment.comment_text)}</p>
+          <small>${new Date(comment.created_at).toLocaleString()}</small>
+          <div class="comment-actions">
+            <button class="reply-btn" data-id="${comment.id}">Reply</button>
+            ${
+              replies.length > 0
+                ? `<button class="view-replies-btn" data-id="${comment.id}">View ${replies.length} repl${replies.length > 1 ? 'ies' : 'y'}</button>`
+                : ''
+            }
           </div>
-
-          <div class="reply-thread ${isOpen ? 'active' : ''}" id="replies-${comment.id}" style="${isOpen ? 'display:flex;max-height:500px;' : 'display:none;max-height:0;'}">
-            ${repliesHTML}
-          </div>
-
-          <div class="inline-reply-form" id="reply-form-${comment.id}" style="display:none; margin-top:10px;">
-            <form class="comment-form-inline" data-event-id="${ev.id}" data-parent-id="${comment.id}">
-              <input type="text" name="user_name" placeholder="Your name" required style="width:100%;padding:6px;margin-bottom:5px;">
-              <textarea name="comment" placeholder="Write a reply..." required style="width:100%;padding:6px;"></textarea>
-              <button type="submit" style="margin-top:5px;background:#2563eb;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">Reply</button>
-            </form>
+          <div class="reply-thread" id="replies-${comment.id}">
+            ${replies.map(r => `
+              <div class="comment-item reply">
+                <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="user">
+                <div class="comment-content">
+                  <strong>${escapeHTML(r.user_name)}</strong>
+                  <p>${escapeHTML(r.comment_text)}</p>
+                  <small>${new Date(r.created_at).toLocaleString()}</small>
+                </div>
+              </div>
+            `).join('')}
           </div>
         </div>
       </div>
     `;
   }
 
-  function renderReplyItem(reply) {
-    return `
-      <div class="comment-item reply" data-reply-id="${reply.id}" style="opacity:0; transform:translateY(-6px); animation:fadeSlideIn .25s forwards;">
-        <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="user" width="28" height="28" style="border-radius:50%;align-self:flex-start;">
-        <div class="content">
-          <strong>${escapeHTML(reply.user_name)}</strong>
-          <p>${escapeHTML(reply.comment)}</p>
-          <small>${formatDate(reply.created_at)}</small>
-        </div>
-      </div>
-    `;
-  }
-
-  // ======= Event Delegation (all clicks inside modal content) =======
-  commentsContent.addEventListener('click', (e) => {
-    const btn = e.target.closest('button');
-    if (!btn) return;
-
-    const action = btn.dataset.action;
-
-    // Toggle inline reply form
-    if (action === 'toggle-inline-reply') {
-      const commentId = parseInt(btn.dataset.commentId);
-      const formWrap = document.getElementById(`reply-form-${commentId}`);
-      formWrap.style.display = formWrap.style.display === 'none' ? 'block' : 'none';
-      if (formWrap.style.display === 'block') {
-        const ta = formWrap.querySelector('textarea');
-        setTimeout(() => ta && ta.focus(), 0);
-      }
-      return;
-    }
-
-    // Toggle replies open/close
-    if (action === 'toggle-replies') {
-      const commentId = parseInt(btn.dataset.commentId);
-      toggleRepliesUI(commentId, btn);
-      return;
-    }
-  });
-
-  // ======= Submit handlers via delegation =======
-  commentsContent.addEventListener('submit', async (e) => {
+  commentsContent.addEventListener('submit', async e => {
+    if (e.target.id !== 'commentForm') return;
+    e.preventDefault();
     const form = e.target;
-    // Root comment form
-    if (form.classList.contains('comment-form-root')) {
-      e.preventDefault();
-      const ev = getEvent(currentEventId);
-      const user_name = form.user_name.value.trim();
-      const comment = form.comment.value.trim();
-      if (!user_name || !comment) return;
+    const data = {
+      user_name: form.user_name.value.trim(),
+      comment_text: form.comment_text.value.trim(),
+      parent_id: form.parent_id.value || null
+    };
+    if (!data.user_name || !data.comment_text) return;
 
-      try {
-        const res = await fetch(`/events/${ev.id}/comment`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_name, comment, parent_id: null })
-        });
-        if (!res.ok) throw new Error();
-
-        const newComment = {
-          id: Date.now(),
-          user_name, comment,
-          created_at: new Date(),
-          parent_id: null
-        };
-        ev.comments.push(newComment);
-
-        // Append just this new main comment
-        const thread = document.getElementById('comment-thread');
-        thread.insertAdjacentHTML('beforeend', renderCommentItem(ev, newComment));
-
-        form.reset();
-      } catch (err) {
-        console.error(err);
-        alert('Error posting comment.');
-      }
-      return;
-    }
-
-    // Inline reply form
-    if (form.classList.contains('comment-form-inline')) {
-      e.preventDefault();
-      const evId = parseInt(form.dataset.eventId);
-      const parentId = parseInt(form.dataset.parentId);
-      const ev = getEvent(evId);
-
-      const user_name = form.user_name.value.trim();
-      const comment = form.comment.value.trim();
-      if (!user_name || !comment) return;
-
-      try {
-        const res = await fetch(`/events/${ev.id}/comment`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_name, comment, parent_id: parentId })
-        });
-        if (!res.ok) throw new Error();
-
-        const newReply = {
-          id: Date.now(),
-          user_name, comment,
-          created_at: new Date(),
-          parent_id: parentId
-        };
-        ev.comments.push(newReply);
-
-        // Ensure replies UI exists and is opened
-        const thread = document.getElementById(`replies-${parentId}`);
-        const viewBtn = commentsContent.querySelector(`.view-replies-btn[data-comment-id="${parentId}"]`);
-
-        // If this was the first reply, show the view button
-        if (viewBtn && viewBtn.style.display === 'none') {
-          viewBtn.style.display = '';
-          viewBtn.textContent = 'Hide replies';
-        }
-
-        // Open the thread and remember it's open
-        openThreads.add(parentId);
-        openRepliesUI(thread, viewBtn);
-
-        // Append the new reply
-        thread.insertAdjacentHTML('beforeend', renderReplyItem(newReply));
-
-        // Reset and hide inline form
-        form.reset();
-        form.closest('.inline-reply-form').style.display = 'none';
-      } catch (err) {
-        console.error(err);
-        alert('Error posting reply.');
-      }
-      return;
-    }
+    await fetch(`/comments/${currentEventId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const updated = await (await fetch(`/comments/${currentEventId}`)).json();
+    renderComments(updated);
   });
 
-  // ======= UI helpers =======
-  function toggleRepliesUI(commentId, btnEl) {
-    const thread = document.getElementById(`replies-${commentId}`);
-    // If currently hidden, open it
-    if (!thread.classList.contains('active')) {
-      openThreads.add(commentId);
-      openRepliesUI(thread, btnEl);
-    } else {
-      openThreads.delete(commentId);
-      closeRepliesUI(thread, btnEl);
+  commentsContent.addEventListener('click', e => {
+    if (e.target.classList.contains('reply-btn')) {
+      const id = e.target.dataset.id;
+      const form = document.getElementById('commentForm');
+      form.parent_id.value = id;
+      form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      form.comment_text.placeholder = 'Replying...';
+      form.comment_text.focus();
     }
-  }
 
-  function openRepliesUI(thread, btnEl) {
-    thread.style.display = 'flex';
-    // force repaint to enable transition
-    // eslint-disable-next-line no-unused-expressions
-    thread.offsetHeight;
-    thread.classList.add('active');
-    thread.style.maxHeight = '500px';
-    if (btnEl) btnEl.textContent = 'Hide replies';
-  }
-
-  function closeRepliesUI(thread, btnEl) {
-    thread.style.maxHeight = '0px';
-    thread.classList.remove('active');
-    setTimeout(() => { thread.style.display = 'none'; }, 250);
-    if (btnEl) btnEl.textContent = 'View replies';
-  }
-
-  function formatDate(dt) {
-    const d = new Date(dt);
-    return d.toLocaleString();
-  }
+    if (e.target.classList.contains('view-replies-btn')) {
+      const thread = document.getElementById(`replies-${e.target.dataset.id}`);
+      const isOpen = thread.classList.toggle('active');
+      e.target.textContent = isOpen ? 'Hide replies' : e.target.textContent.replace('Hide', 'View');
+    }
+  });
 
   function escapeHTML(s) {
-    return String(s)
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;');
+    return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
   }
 </script>
-
-
-
 </body>
 </html>
