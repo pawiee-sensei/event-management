@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Event</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; padding: 30px; }
+    form { background: white; padding: 25px; border-radius: 10px; max-width: 600px; margin: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    h2 { color: #2563eb; }
+    label { display: block; margin-top: 12px; font-weight: 600; }
+    input, textarea, select { width: 100%; padding: 8px; margin-top: 5px; border-radius: 6px; border: 1px solid #cbd5e1; }
+    button { margin-top: 20px; background: #2563eb; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; }
+    button:hover { background: #1d4ed8; }
+    a { text-decoration: none; color: #2563eb; }
+  </style>
+</head>
+<body>
+  <form method="POST" enctype="multipart/form-data">
+    <h2>Edit Event</h2>
+    <label>Title</label>
+    <input type="text" name="title" value="<%= event.title %>" required>
+
+    <label>Description</label>
+    <textarea name="description" required><%= event.description %></textarea>
+
+    <label>Category</label>
+    <input type="text" name="category" value="<%= event.category %>">
+
+    <label>Date</label>
+    <input type="date" name="date" value="<%= event.date.toISOString().split('T')[0] %>">
+
+    <label>Time</label>
+    <input type="time" name="time" value="<%= event.time %>">
+
+    <label>Location</label>
+    <input type="text" name="location" value="<%= event.location %>">
+
+    <label>Change Banner</label>
+    <input type="file" name="banner">
+
+    <label>Change Proof</label>
+    <input type="file" name="proof">
+
+    <button type="submit">Save Changes</button>
+    <p><a href="/organizer/events">← Back to My Events</a></p>
+  </form>
+</body>
+</html>

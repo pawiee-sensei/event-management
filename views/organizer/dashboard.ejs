@@ -1,117 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Organizer Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f1f5f9;
+      background: #f9fafb;
       color: #1e293b;
-      margin: 0;
-      padding: 30px;
+      padding: 40px;
     }
-
     .top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #2563eb;
-      color: white;
-      padding: 20px 25px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
     }
-
-    .top h1 {
-      margin: 0;
-      font-size: 24px;
-    }
-
     a.btn {
-      background: white;
-      color: #2563eb;
+      background: #2563eb;
+      color: #fff;
       padding: 10px 16px;
       border-radius: 6px;
       text-decoration: none;
-      font-weight: 600;
-      transition: background 0.2s ease;
     }
-
-    a.btn:hover {
-      background: #e0e7ff;
-    }
-
-    main {
-      margin-top: 30px;
-      background: #fff;
-      border-radius: 10px;
-      padding: 25px 30px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
+    a.btn:hover { background: #1d4ed8; }
 
     .stats {
       display: flex;
-      justify-content: space-around;
-      margin: 20px 0 30px;
+      gap: 20px;
+      margin-bottom: 40px;
       flex-wrap: wrap;
-      gap: 15px;
     }
-
-    .stat-box {
-      background: #f8fafc;
-      padding: 20px 30px;
+    .card {
+      background: white;
       border-radius: 10px;
-      flex: 1 1 220px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 20px;
+      flex: 1;
+      min-width: 220px;
       text-align: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
-
-    .stat-box h2 {
-      margin: 5px 0;
-      color: #2563eb;
-      font-size: 26px;
-    }
-
-    .stat-box p {
+    .card h3 {
       margin: 0;
-      color: #475569;
+      color: #64748b;
+      font-size: 16px;
+    }
+    .card p {
+      font-size: 28px;
+      color: #2563eb;
+      margin: 8px 0 0;
+      font-weight: 600;
     }
 
-    h3 {
-      border-bottom: 2px solid #2563eb;
-      display: inline-block;
-      padding-bottom: 5px;
-      margin-bottom: 15px;
+    .chart-container {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
     }
 
-    canvas {
-      display: block;
-      max-width: 600px;
-      margin: 20px auto;
-    }
-
-    ul.tools {
-      list-style: none;
-      padding: 0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    ul.tools li a {
-      background: #2563eb;
-      color: white;
-      text-decoration: none;
-      padding: 10px 14px;
-      border-radius: 6px;
-      display: inline-block;
-      transition: background 0.2s;
-    }
-
-    ul.tools li a:hover {
-      background: #1d4ed8;
-    }
+    canvas { width: 100% !important; height: 380px !important; }
   </style>
 </head>
 <body>
@@ -120,68 +71,61 @@
     <a href="/organizer/logout" class="btn">Logout</a>
   </div>
 
-  <main>
-    <p><strong>Role:</strong> <%= organizer.role %></p>
-
-    <!-- 📊 Statistics Summary -->
-    <div class="stats">
-      <div class="stat-box">
-        <h2><%= stats.approved || 0 %></h2>
-        <p>Approved Events</p>
-      </div>
-      <div class="stat-box">
-        <h2><%= stats.pending || 0 %></h2>
-        <p>Pending Approval</p>
-      </div>
-      <div class="stat-box">
-        <h2><%= stats.rejected || 0 %></h2>
-        <p>Rejected Events</p>
-      </div>
+  <div class="stats">
+    <div class="card">
+      <h3>Approved Events</h3>
+      <p><%= stats.approved || 0 %></p>
     </div>
+    <div class="card">
+      <h3>Pending Events</h3>
+      <p><%= stats.pending || 0 %></p>
+    </div>
+    <div class="card">
+      <h3>Rejected Events</h3>
+      <p><%= stats.rejected || 0 %></p>
+    </div>
+    <div class="card">
+      <h3>Total Engagement</h3>
+      <p><%= engagement %></p>
+    </div>
+  </div>
 
-    <!-- 📈 Monthly Event Chart -->
-    <h3>Monthly Event Summary</h3>
-    <canvas id="eventsChart"></canvas>
+  <div class="chart-container">
+    <h2 style="text-align:center; margin-bottom:15px;">💬 Engagement per Event</h2>
+    <canvas id="engagementChart"></canvas>
+  </div>
 
-    <!-- 🧰 Tools -->
-    <h3>Your Tools</h3>
-    <ul class="tools">
-      <li><a href="/organizer/events">View My Events</a></li>
-      <li><a href="/organizer/events/new">Add New Event</a></li>
-    </ul>
-  </main>
+  <div style="text-align:center; margin-top:30px;">
+    <a class="btn" href="/organizer/events">View My Events</a>
+  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const data = {
-      labels: <%- JSON.stringify(monthly.map(m => new Date(0, m.month - 1).toLocaleString('default', { month: 'short' }))) %>,
-      datasets: [{
-        label: 'Events Created',
-        data: <%- JSON.stringify(monthly.map(m => m.total)) %>,
-        borderColor: '#2563eb',
-        backgroundColor: 'rgba(37,99,235,0.15)',
-        fill: true,
-        borderWidth: 2,
-        tension: 0.3,
-        pointRadius: 4,
-        pointBackgroundColor: '#2563eb'
-      }]
-    };
+    const engagementData = <%- JSON.stringify(eventEngagement) %>;
 
-    new Chart(document.getElementById('eventsChart'), {
-      type: 'line',
-      data,
+    const ctx = document.getElementById('engagementChart').getContext('2d');
+    const titles = engagementData.map(e => e.title);
+    const counts = engagementData.map(e => e.comment_count);
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: titles,
+        datasets: [{
+          label: 'Comments per Event',
+          data: counts,
+          borderWidth: 1,
+          backgroundColor: 'rgba(37, 99, 235, 0.6)',
+          borderColor: '#2563eb'
+        }]
+      },
       options: {
         responsive: true,
+        scales: {
+          y: { beginAtZero: true }
+        },
         plugins: {
           legend: { display: false },
-          title: { display: false }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { stepSize: 1 }
-          }
+          tooltip: { backgroundColor: '#1e293b', titleColor: '#fff', bodyColor: '#fff' }
         }
       }
     });

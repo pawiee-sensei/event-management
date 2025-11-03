@@ -11,10 +11,7 @@
       padding: 30px;
     }
 
-    h1 {
-      margin-bottom: 10px;
-      color: #1e293b;
-    }
+    h1 { margin-bottom: 10px; }
 
     .top-bar {
       display: flex;
@@ -31,10 +28,7 @@
       border-radius: 8px;
       transition: background 0.2s ease;
     }
-
-    a.btn:hover {
-      background: #1d4ed8;
-    }
+    a.btn:hover { background: #1d4ed8; }
 
     table {
       width: 100%;
@@ -51,10 +45,8 @@
       border-bottom: 1px solid #e5e7eb;
       text-align: left;
     }
-
     th {
       background: #f1f5f9;
-      color: #374151;
       font-weight: 600;
     }
 
@@ -62,12 +54,9 @@
       cursor: pointer;
       transition: background 0.2s ease;
     }
+    tr.event-row:hover { background: #f9fafb; }
 
-    tr.event-row:hover {
-      background: #f9fafb;
-    }
-
-    /* Smooth collapse animation container */
+    /* Collapse */
     .event-details {
       height: 0;
       overflow: hidden;
@@ -76,11 +65,7 @@
       transition: height 0.35s ease, opacity 0.3s ease;
       opacity: 0;
     }
-
-    .event-details.active {
-      opacity: 1;
-      height: auto;
-    }
+    .event-details.active { opacity: 1; height: auto; }
 
     .details-frame {
       display: flex;
@@ -94,31 +79,14 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 
-    .details-text {
-      flex: 2;
-      line-height: 1.6;
-    }
-
-    .details-text p {
-      margin: 8px 0;
-    }
-
-    .details-image {
-      flex: 1;
-      text-align: center;
-    }
-
+    .details-text { flex: 2; line-height: 1.6; }
+    .details-image { flex: 1; text-align: center; }
     .details-image img {
-      width: 100%;
-      max-width: 480px;
-      border-radius: 8px;
-      border: 2px solid #e5e7eb;
+      width: 100%; max-width: 480px;
+      border-radius: 8px; border: 2px solid #e5e7eb;
       transition: transform 0.3s ease;
     }
-
-    .details-image img:hover {
-      transform: scale(1.05);
-    }
+    .details-image img:hover { transform: scale(1.05); }
 
     .approved { color: #16a34a; font-weight: 600; }
     .pending { color: #ca8a04; font-weight: 600; }
@@ -135,6 +103,46 @@
       line-height: 1.4;
     }
 
+    .comments-section {
+      margin-top: 20px;
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .comment {
+      background: white;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      margin-bottom: 10px;
+    }
+
+    .comment strong { color: #1e293b; }
+    .comment p { margin: 5px 0; color: #334155; }
+    .comment small { color: #64748b; }
+    .comment form { display: inline; }
+
+    .reply-block {
+      margin-left: 25px;
+      border-left: 2px solid #e2e8f0;
+      padding-left: 12px;
+      margin-top: 6px;
+    }
+
+    .btn-sm {
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn-sm.red { background: #dc2626; }
+    .btn-sm:hover { opacity: 0.9; }
+
     .no-events {
       background: white;
       padding: 40px;
@@ -148,7 +156,7 @@
   <div class="top-bar">
     <h1>My Events</h1>
     <div>
-      <a class="btn" href="/organizer/dashboard">← Back to Dashboard</a>
+      <a class="btn" href="/organizer/dashboard">← Dashboard</a>
       <a class="btn" href="/organizer/events/new">+ New Event</a>
       <a class="btn" href="/organizer/logout" style="background:#dc2626;">Logout</a>
     </div>
@@ -166,6 +174,8 @@
           <th>Date</th>
           <th>Category</th>
           <th>Status</th>
+          <th>Comments</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -179,14 +189,21 @@
                 <span class="pending">Pending</span>
               <% } else if (ev.status === 'approved') { %>
                 <span class="approved">Approved</span>
-              <% } else if (ev.status === 'rejected') { %>
+              <% } else { %>
                 <span class="rejected">Rejected</span>
               <% } %>
+            </td>
+            <td><%= ev.comment_count || 0 %></td>
+            <td>
+              <a href="/organizer/events/<%= ev.id %>/edit" class="btn-sm">Edit</a>
+              <form method="POST" action="/organizer/events/<%= ev.id %>/delete" onsubmit="return confirm('Delete this event?')" style="display:inline;">
+                <button class="btn-sm red" type="submit">Delete</button>
+              </form>
             </td>
           </tr>
 
           <tr>
-            <td colspan="4">
+            <td colspan="6">
               <div class="event-details" id="details-<%= ev.id %>">
                 <div class="details-frame">
                   <div class="details-text">
@@ -194,31 +211,57 @@
                     <p><strong>Location:</strong> <%= ev.location %></p>
                     <p><strong>Date & Time:</strong> <%= ev.date %> at <%= ev.time %></p>
                     <p><strong>Category:</strong> <%= ev.category || 'N/A' %></p>
-                    
                     <% if (ev.proof) { %>
-                      <p><strong>Proof Document:</strong>
-                        <a href="/uploads/proofs/<%= ev.proof %>" target="_blank">View Proof</a>
-                      </p>
-                    <% } else { %>
-                      <p><em>No proof uploaded</em></p>
+                      <p><strong>Proof:</strong> <a href="/uploads/proofs/<%= ev.proof %>" target="_blank">View Proof</a></p>
                     <% } %>
 
                     <% if (ev.status === 'rejected' && ev.rejection_reason) { %>
-                      <div class="reject-note">
-                        <p><strong>Reason:</strong> <%= ev.rejection_reason %></p>
+                      <div class="reject-note"><p><strong>Reason:</strong> <%= ev.rejection_reason %></p></div>
+                    <% } %>
+
+                    <% if (ev.status === 'approved') { %>
+                      <div class="comments-section">
+                        <h3>💬 Comments (<%= ev.comment_count %>)</h3>
+                        <% if (ev.comments.length === 0) { %>
+                          <p style="color:#64748b;">No comments yet.</p>
+                        <% } else { %>
+                          <% ev.comments.forEach(c => { %>
+                            <div class="comment">
+                              <strong><%= c.user_name %></strong>
+                              <p><%= c.comment %></p>
+                              <small><%= new Date(c.created_at).toLocaleString() %></small>
+                              <form method="POST" action="/organizer/comments/<%= c.id %>/delete" onsubmit="return confirm('Delete this comment and its replies?')">
+                                <button type="submit" class="btn-sm red">Delete</button>
+                              </form>
+
+                              <% if (c.replies && c.replies.length > 0) { %>
+                                <div class="reply-block">
+                                  <% c.replies.forEach(r => { %>
+                                    <div class="comment reply">
+                                      <strong>↳ <%= r.user_name %></strong>
+                                      <p><%= r.comment %></p>
+                                      <small><%= new Date(r.created_at).toLocaleString() %></small>
+                                      <form method="POST" action="/organizer/comments/<%= r.id %>/delete" onsubmit="return confirm('Delete this reply?')">
+                                        <button type="submit" class="btn-sm red">Delete</button>
+                                      </form>
+                                    </div>
+                                  <% }) %>
+                                </div>
+                              <% } %>
+                            </div>
+                          <% }) %>
+                        <% } %>
                       </div>
                     <% } %>
                   </div>
 
-                  <% if (ev.image) { %>
-                    <div class="details-image">
+                  <div class="details-image">
+                    <% if (ev.image) { %>
                       <img src="/uploads/banners/<%= ev.image %>" alt="Event Banner">
-                    </div>
-                  <% } else { %>
-                    <div class="details-image">
+                    <% } else { %>
                       <img src="https://via.placeholder.com/400x220?text=No+Banner" alt="No Banner">
-                    </div>
-                  <% } %>
+                    <% } %>
+                  </div>
                 </div>
               </div>
             </td>
@@ -229,21 +272,20 @@
   <% } %>
 
   <script>
-    // Smooth collapse logic
+    // Smooth expand/collapse logic
     const rows = document.querySelectorAll('.event-row');
     rows.forEach(row => {
-      row.addEventListener('click', () => {
+      row.addEventListener('click', e => {
+        if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.closest('form')) return;
         const id = row.dataset.eventId;
         const details = document.getElementById(`details-${id}`);
         const active = details.classList.contains('active');
 
-        // Collapse all
         document.querySelectorAll('.event-details').forEach(d => {
           d.classList.remove('active');
           d.style.height = '0';
         });
 
-        // Expand clicked
         if (!active) {
           details.classList.add('active');
           details.style.height = details.scrollHeight + 'px';
