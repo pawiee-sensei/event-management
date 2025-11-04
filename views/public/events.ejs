@@ -23,7 +23,8 @@
 
     /* Filter Bar */
     .filter-bar {
-      display: flex; flex-wrap: wrap;
+      display: flex;
+      flex-wrap: wrap;
       justify-content: center;
       gap: 12px;
       background: #fff;
@@ -33,6 +34,7 @@
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
+
     .filter-bar input, .filter-bar select {
       padding: 10px 14px;
       border: 1px solid #cbd5e1;
@@ -41,6 +43,7 @@
       width: 250px;
       outline: none;
     }
+
     .filter-bar button {
       padding: 10px 16px;
       background: #2563eb;
@@ -50,23 +53,26 @@
       cursor: pointer;
       transition: background 0.3s;
     }
+
     .filter-bar button:hover { background: #1d4ed8; }
 
     /* Feed Layout */
     .feed {
       max-width: 850px;
       margin: 0 auto 60px;
-      display: flex;  
+      display: flex;
       flex-direction: column;
       gap: 35px;
       padding: 0 20px;
     }
+
     .post {
       background: #fff;
       border-radius: 12px;
       box-shadow: 0 3px 10px rgba(0,0,0,0.08);
       overflow: hidden;
     }
+
     .post-header { padding: 18px 22px; border-bottom: 1px solid #e5e7eb; }
     .post-header h2 { margin: 0; font-size: 22px; }
     .post-header p { margin: 6px 0 0; color: #64748b; font-size: 14px; }
@@ -81,28 +87,44 @@
       cursor: pointer;
       margin: 0 0 20px 22px;
     }
+
     .open-comments-btn:hover { text-decoration: underline; }
 
     /* Modal */
     .modal {
-      position: fixed; inset: 0;
+      position: fixed;
+      inset: 0;
       background: rgba(15,23,42,0.45);
-      display: flex; justify-content: center; align-items: center;
-      opacity: 0; pointer-events: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
       transition: opacity 0.3s;
-      z-index: 1000; backdrop-filter: blur(4px);
+      z-index: 1000;
+      backdrop-filter: blur(4px);
     }
+
     .modal.active { opacity: 1; pointer-events: auto; }
+
     .modal-dialog {
-      background: white; border-radius: 12px;
-      width: 90%; max-width: 650px;
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 650px;
       padding: 20px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
+
     .modal-header {
-      display: flex; justify-content: space-between; align-items: center;
-      border-bottom: 1px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
     }
+
     .close-btn { background: none; border: none; font-size: 22px; cursor: pointer; }
 
     /* Comments */
@@ -123,9 +145,7 @@
       transition: background 0.2s ease;
     }
 
-    .comment-item:hover {
-      background: #f1f5f9;
-    }
+    .comment-item:hover { background: #f1f5f9; }
 
     .comment-item img {
       border-radius: 50%;
@@ -133,9 +153,7 @@
       height: 36px;
     }
 
-    .comment-content {
-      flex: 1;
-    }
+    .comment-content { flex: 1; }
 
     .comment-content strong {
       font-size: 15px;
@@ -153,9 +171,7 @@
       font-size: 12px;
     }
 
-    .comment-actions {
-      margin-top: 4px;
-    }
+    .comment-actions { margin-top: 4px; }
 
     .reply-btn, .view-replies-btn {
       background: none;
@@ -166,11 +182,8 @@
       margin-right: 10px;
     }
 
-    .reply-btn:hover, .view-replies-btn:hover {
-      text-decoration: underline;
-    }
+    .reply-btn:hover, .view-replies-btn:hover { text-decoration: underline; }
 
-    /* Replies */
     .reply-thread {
       margin-left: 45px;
       padding-left: 12px;
@@ -180,9 +193,7 @@
       gap: 10px;
     }
 
-    .reply-thread.active {
-      display: flex;
-    }
+    .reply-thread.active { display: flex; }
 
     .reply {
       background: #fff;
@@ -216,9 +227,7 @@
       float: right;
     }
 
-    .comment-form button:hover {
-      background: #1d4ed8;
-    }
+    .comment-form button:hover { background: #1d4ed8; }
 
     footer { text-align: center; padding: 20px; background: #f1f5f9; color: #64748b; }
   </style>
@@ -316,7 +325,7 @@
       <form class="comment-form" id="commentForm">
         <input type="hidden" name="parent_id" value="">
         <input type="text" name="user_name" placeholder="Your name" required>
-        <textarea name="comment_text" placeholder="Write a comment..." required></textarea>
+        <textarea name="comment" placeholder="Write a comment..." required></textarea>
         <button type="submit">Post</button>
       </form>
     `;
@@ -329,15 +338,13 @@
         <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="user">
         <div class="comment-content">
           <strong>${escapeHTML(comment.user_name)}</strong>
-          <p>${escapeHTML(comment.comment_text)}</p>
+          <p>${escapeHTML(comment.comment)}</p>
           <small>${new Date(comment.created_at).toLocaleString()}</small>
           <div class="comment-actions">
             <button class="reply-btn" data-id="${comment.id}">Reply</button>
-            ${
-              replies.length > 0
-                ? `<button class="view-replies-btn" data-id="${comment.id}">View ${replies.length} repl${replies.length > 1 ? 'ies' : 'y'}</button>`
-                : ''
-            }
+            ${replies.length > 0 ? 
+              `<button class="view-replies-btn" data-id="${comment.id}">View ${replies.length} repl${replies.length > 1 ? 'ies' : 'y'}</button>` 
+              : ''}
           </div>
           <div class="reply-thread" id="replies-${comment.id}">
             ${replies.map(r => `
@@ -345,7 +352,7 @@
                 <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="user">
                 <div class="comment-content">
                   <strong>${escapeHTML(r.user_name)}</strong>
-                  <p>${escapeHTML(r.comment_text)}</p>
+                  <p>${escapeHTML(r.comment)}</p>
                   <small>${new Date(r.created_at).toLocaleString()}</small>
                 </div>
               </div>
@@ -362,16 +369,18 @@
     const form = e.target;
     const data = {
       user_name: form.user_name.value.trim(),
-      comment_text: form.comment_text.value.trim(),
+      comment: form.comment.value.trim(),
       parent_id: form.parent_id.value || null
     };
-    if (!data.user_name || !data.comment_text) return;
+
+    if (!data.user_name || !data.comment) return alert("Please fill all fields");
 
     await fetch(`/comments/${currentEventId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
+
     const updated = await (await fetch(`/comments/${currentEventId}`)).json();
     renderComments(updated);
   });
@@ -382,8 +391,8 @@
       const form = document.getElementById('commentForm');
       form.parent_id.value = id;
       form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      form.comment_text.placeholder = 'Replying...';
-      form.comment_text.focus();
+      form.comment.placeholder = 'Replying...';
+      form.comment.focus();
     }
 
     if (e.target.classList.contains('view-replies-btn')) {
